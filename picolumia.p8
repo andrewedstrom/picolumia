@@ -3,18 +3,27 @@ version 29
 __lua__
 
 local board
+local player_location
+
+-- piece types
+local white = 8
+local red = 16
+local yellow = 24
+local blue = 32
 local empty = 40
 local wall = -1
 
-local board_height = 23
+-- board constants
+local board_height = 27 -- must be odd for math to work out
 local board_width = 8
 local bottom = 120
 local piece_width = 8
-local piece_height = 5
+local piece_height = 4
 local sprite_size = 6
 
 function _init()
     board=new_board()
+    new_quad()
 end
 
 function _update()
@@ -40,6 +49,18 @@ function draw_board()
             end
         end
     end
+end
+
+-- create things
+function new_quad()
+    player_location={
+        y=board_height-2,
+        x=4
+    }
+    board[board_height][4] = white
+    board[board_height-1][4] = red
+    board[board_height-1][5] = yellow
+    board[board_height-2][4] = blue
 end
 
 function new_board()
