@@ -8,6 +8,7 @@ local wall = -1
 
 local board_height = 23
 local board_width = 8
+local bottom = 120
 local piece_width = 8
 local piece_height = 5
 local sprite_size = 6
@@ -33,8 +34,7 @@ function draw_board()
             if y % 2 != 0 then
                 x_loc += piece_width/2 
             end
-            local y_loc=120-y*piece_height
-            -- rectfill(x_loc,y_loc,x_loc+piece_width-2,y_loc+piece_width-2,1)
+            local y_loc=bottom-y*piece_height
             if board[y][x] != wall then
                 sspr(board[y][x],0,sprite_size,sprite_size,x_loc,y_loc)
             end
@@ -66,15 +66,15 @@ function wall_here(y,x)
     -- todo do this much smarter
     if row_at_beginning_or_end(y, 1) and x != 4 then
         return true
-    elseif row_at_beginning_or_end(y, 2) and (x < 4 or 5 < x ) then
+    elseif row_at_beginning_or_end(y, 2) and (x < 4 or 5 < x) then
         return true
-    elseif row_at_beginning_or_end(y, 3) and (x < 3 or 5 < x ) then
+    elseif row_at_beginning_or_end(y, 3) and (x < 3 or 5 < x) then
         return true
-    elseif row_at_beginning_or_end(y, 4) and (x < 3 or 6 < x ) then
+    elseif row_at_beginning_or_end(y, 4) and (x < 3 or 6 < x) then
         return true
-    elseif row_at_beginning_or_end(y, 5) and (x < 2 or 6 < x ) then
+    elseif row_at_beginning_or_end(y, 5) and (x < 2 or 6 < x) then
         return true
-    elseif row_at_beginning_or_end(y, 6) and (x < 2 or 7 < x ) then
+    elseif row_at_beginning_or_end(y, 6) and (x < 2 or 7 < x) then
         return true
     elseif y % 2 != 0 and x == board_width then
         return true
