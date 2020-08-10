@@ -37,24 +37,71 @@ function _update()
         tick()
         timer = 0
     end
+
+    if btnp(0) then
+        move_left()
+        timer = 0
+
+    -- elseif btn(1) then
+        -- move_right()
+    end
 end
 
 function tick()
+    move_down()
+end
+
+function move_down(next_y,next_x)
     local next_y=player.y-2
     local next_x=player.x
     if next_y > 0 and board[next_y][next_x] == empty then
-        -- move 0
         move_piece(player.y,player.x,next_y,next_x)
+        -- todo fix this
         move_piece(player.y+1,player.x,next_y+1,next_x)
         move_piece(player.y+1,player.x+1,next_y+1,next_x+1)
         move_piece(player.y+2,player.x,next_y+2,next_x)
-
+        
         player.x = next_x
         player.y = next_y
     else
         new_quad()
     end
 end
+
+function move_left()
+    local next_y=player.y-1
+    local next_x=move_block_left_x(player.y, player.x)
+    if next_y > 0 and board[next_y][next_x] == empty then
+        move_piece(player.y,player.x,next_y,next_x)
+
+        local one_row_up_x = move_block_left_x(player.y+1,next_x)
+        move_piece(player.y+1,next_x,next_y+1,one_row_up_x)
+        move_piece(player.y+1,next_x+1,next_y+1,one_row_up_x+1)
+
+        move_piece(player.y+2,player.x,next_y+2,next_x)
+        
+        player.x = next_x
+        player.y = next_y
+    else
+        new_quad()
+    end
+end
+
+function move_block_left_x(current_y, current_x)
+    -- either current x or x-1
+    if current_y % 2 == 1 then
+        return current_x
+    end
+    return current_x-1
+end
+
+-- function move_right()
+--     move_piece(player.y,player.x,next_y,next_x)
+--     move_piece(player.y+1,player.x,next_y+1,next_x)
+--     move_piece(player.y+1,player.x+1,next_y+1,next_x+1)
+--     move_piece(player.y+2,player.x,next_y+2,next_x)
+-- end
+
 
 function move_piece(old_y,old_x,new_y,new_x)
     board[new_y][new_x] = board[old_y][old_x]
