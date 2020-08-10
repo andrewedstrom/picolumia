@@ -3,7 +3,9 @@ version 29
 __lua__
 
 local board
-local player_location
+local player
+local timer
+local speed
 
 -- piece types
 local white = 8
@@ -24,16 +26,47 @@ local sprite_size = 6
 function _init()
     board=new_board()
     new_quad()
+
+    timer = 0
+    speed = 30
 end
 
 function _update()
-
+    timer += 1
+    if timer == speed then
+        tick()
+        timer = 0
+    end
 end
+
+function tick()
+    local next_y=player.y-2
+    local next_x=player.x
+    if next_y > 0 and board[next_y][next_x] == empty then
+        -- move 0
+        move_piece(player.y,player.x,next_y,next_x)
+        move_piece(player.y+1,player.x,next_y+1,next_x)
+        move_piece(player.y+1,player.x+1,next_y+1,next_x+1)
+        move_piece(player.y+2,player.x,next_y+2,next_x)
+
+        player.x = next_x
+        player.y = next_y
+    else
+        new_quad()
+    end
+end
+
+function move_piece(old_y,old_x,new_y,new_x)
+    board[new_y][new_x] = board[old_y][old_x]
+    board[old_y][old_x] = empty
+end
+
 
 function _draw()
     cls()
-    draw_board()
     rect(0,0,127,127,5)
+
+    draw_board()
 end
 
 function draw_board()
@@ -53,7 +86,7 @@ end
 
 -- create things
 function new_quad()
-    player_location={
+    player={
         y=board_height-2,
         x=4
     }
