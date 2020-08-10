@@ -3,8 +3,10 @@ version 29
 __lua__
 
 local board
-local empty = 1
-local board_height = 16
+local empty = 40
+local wall = -1
+
+local board_height = 23
 local board_width = 8
 local piece_width = 8
 local piece_height = 5
@@ -21,19 +23,21 @@ end
 function _draw()
     cls()
     draw_board()
+    rect(0,0,127,127,5)
 end
 
 function draw_board()
     for y = 1, board_height do
         for x = 1, board_width do
-            -- grid[y][x]
             local x_loc=x*piece_width
             if y % 2 != 0 then
                 x_loc += piece_width/2 
             end
-            local y_loc=122-y*piece_height
+            local y_loc=120-y*piece_height
             -- rectfill(x_loc,y_loc,x_loc+piece_width-2,y_loc+piece_width-2,1)
-            sspr(40,0,sprite_size,sprite_size,x_loc,y_loc)
+            if board[y][x] != wall then
+                sspr(board[y][x],0,sprite_size,sprite_size,x_loc,y_loc)
+            end
         end
     end
 end
@@ -46,11 +50,43 @@ function new_board()
         grid[y] = {}
 
         for x = 1, board_width do
-            grid[y][x] = empty
+            local piece = empty
+
+            if wall_here(y, x) then
+                piece = wall
+            end
+
+            grid[y][x] = piece
         end
     end
     return grid
 end
+
+function wall_here(y,x)
+    -- todo do this much smarter
+    if row_at_beginning_or_end(y, 1) and x != 4 then
+        return true
+    elseif row_at_beginning_or_end(y, 2) and (x < 4 or 5 < x ) then
+        return true
+    elseif row_at_beginning_or_end(y, 3) and (x < 3 or 5 < x ) then
+        return true
+    elseif row_at_beginning_or_end(y, 4) and (x < 3 or 6 < x ) then
+        return true
+    elseif row_at_beginning_or_end(y, 5) and (x < 2 or 6 < x ) then
+        return true
+    elseif row_at_beginning_or_end(y, 6) and (x < 2 or 7 < x ) then
+        return true
+    elseif y % 2 != 0 and x == board_width then
+        return true
+    end
+
+    return false
+end
+
+function row_at_beginning_or_end(real, expected)
+    return real == expected or real == board_height-expected+1
+end
+
 
 __gfx__
 00000000007700000088000000aa000000cc00000011000000000000000000000000000000000000000000000000000000000000000000000000000000000000
