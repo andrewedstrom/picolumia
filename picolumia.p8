@@ -73,7 +73,7 @@ function move_down(next_y,next_x)
 
         player.x = next_x
         player.y = next_y
-    elseif next_y <= 0 then
+    elseif next_y < 0 then
         new_quad()
     else
         local next_action = new_quad
@@ -282,7 +282,6 @@ function is_odd(num)
 end
 
 function x_for_next_row(current_y, current_x)
-    -- either current x or x-1
     if is_odd(current_y) then
         return current_x
     end
