@@ -49,10 +49,41 @@ function _update()
     elseif btn(3) then
         move_down()
     end
+    if btnp(4) then
+        rotate_counter_clockwise()
+    elseif btnp(5) then
+        rotate_clockwise()
+    end
 end
 
 function tick()
     move_down()
+end
+
+function rotate_clockwise()
+    local p0 = player:player0()
+    local p1 = player:player1()
+    local p2 = player:player2()
+    local p3 = player:player3()
+
+    local tmp = board[p0.y][p0.x]
+    board[p0.y][p0.x] = board[p2.y][p2.x]
+    board[p2.y][p2.x] = board[p3.y][p3.x]
+    board[p3.y][p3.x] = board[p1.y][p1.x]
+    board[p1.y][p1.x] = tmp
+end
+
+function rotate_counter_clockwise()
+    local p0 = player:player0()
+    local p1 = player:player1()
+    local p2 = player:player2()
+    local p3 = player:player3()
+
+    local tmp = board[p0.y][p0.x]
+    board[p0.y][p0.x] = board[p1.y][p1.x]
+    board[p1.y][p1.x] = board[p3.y][p3.x]
+    board[p3.y][p3.x] = board[p2.y][p2.x]
+    board[p2.y][p2.x] = tmp
 end
 
 function move_down(next_y,next_x)
@@ -193,11 +224,17 @@ end
 -- player is represented as the bottom of the falling quad
 --     player3
 -- player1  player2
---     player
+--     player0
 function new_quad()
     player={
         y=board_height-2,
         x=4,
+        player0=function(self)
+            return {
+                x=self.x,
+                y=self.y
+            }
+        end,
         player1=function(self) --todo get all of these back in one method call
             return {
                 x=x_for_next_row(self.y,self.x),
