@@ -142,7 +142,7 @@ function move_left()
         player.x = next_x
         player.y = next_y
         last_direction_moved = "left"
-    else
+    elseif not can_move_right() then
         new_quad()
     end
 end
@@ -175,7 +175,7 @@ function move_right() --todo combine into one method with move_left
         player.x = next_x
         player.y = next_y
         last_direction_moved = "right"
-    else
+    elseif not can_move_left() then
         new_quad()
     end
 end
@@ -255,16 +255,31 @@ function new_quad()
         end
     }
     local p3 = player:player3()
-    board[p3.y][p3.x] = white
+    board[p3.y][p3.x] = random_piece()
     
     local p2 = player:player2()
-    board[p2.y][p2.x] = yellow
+    board[p2.y][p2.x] = random_piece()
 
     local p1 = player:player1()
-    board[p1.y][p1.x] = red
+    board[p1.y][p1.x] = random_piece()
 
-    board[player.y][player.x] = blue
-    board[board_height-2][4] = blue
+    board[player.y][player.x] = random_piece()
+
+    while board[player.y][player.x] == board[p1.y][p1.x] and board[p1.y][p1.x] == board[p2.y][p2.x] and board[p2.y][p2.x] == board[p3.y][p3.x] do
+        board[player.y][player.x] = random_piece()
+    end
+end
+
+function random_piece()
+    local val = flr(rnd(4))
+    if val == 0 then
+        return white
+    elseif val == 1 then
+        return red
+    elseif val == 2 then
+        return yellow
+    end
+    return blue
 end
 
 function new_board()
