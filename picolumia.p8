@@ -52,42 +52,42 @@ function tick()
 end
 
 function move_down(next_y,next_x)
+    local old_y=player.y
+    local old_x=player.x
     local next_y=player.y-2
     local next_x=player.x
 
+    local p1 = player:player1()
+    local p2 = player:player2()
+    local p3 = player:player3()
+
+    player.x = next_x
+    player.y = next_y
+
     if next_y > 0 and board[next_y][next_x] == empty then
-        move_piece(player.y,player.x,next_y,player.x)
-
-        local p1 = player:player1()
+        move_piece(old_y,old_x,next_y,next_x)
         move_piece(p1.y,p1.x,next_y+1,p1.x)
-
-        local p2 = player:player2()
         move_piece(p2.y,p2.x,next_y+1,p2.x)
-
-        local p3 = player:player3()
-        move_piece(p3.y,p3.x,next_y+2,player.x)
-
-        player.x = next_x
-        player.y = next_y
+        move_piece(p3.y,p3.x,next_y+2,next_x)
     else
         new_quad()
     end
 end
 
 function move_left()
+    local old_y=player.y
+    local old_x=player.x
     local next_y=player.y-1
     local next_x=x_for_next_row(player.y, player.x)
-    if next_y > 0 and board[next_y][next_x] == empty then
-        move_piece(player.y,player.x,next_y,next_x)
+    local one_row_up_x = x_for_next_row(player.y+1,next_x)
+    local p1 = player:player1()
+    local p2 = player:player2()
+    local p3 = player:player3()
 
-        local one_row_up_x = x_for_next_row(player.y+1,next_x)
-        local p1 = player:player1()
+    if next_y > 0 and board[next_y][next_x] == empty  and board[next_y+1][one_row_up_x] == empty then
+        move_piece(old_y,old_x,next_y,next_x)
         move_piece(p1.y,p1.x,next_y+1,one_row_up_x)
-
-        local p2 = player:player2()
         move_piece(p2.y,p2.x,next_y+1,one_row_up_x+1)
-
-        local p3 = player:player3()
         move_piece(p3.y,p3.x,next_y+2,next_x)
         
         player.x = next_x
@@ -98,19 +98,19 @@ function move_left()
 end
 
 function move_right() --todo combine into one method with move_left
+    local old_y=player.y
+    local old_x=player.x
     local next_y=player.y-1
-    local next_x=x_for_next_row(player.y, player.x+1)
-    if next_y > 0 and board[next_y][next_x] == empty then
-        move_piece(player.y,player.x,next_y,next_x)
+    local next_x=x_for_next_row(player.y, player.x)+1
+    local one_row_up_x = x_for_next_row(player.y+1,next_x)
+    local p1 = player:player1()
+    local p2 = player:player2()
+    local p3 = player:player3()
 
-        local one_row_up_x = x_for_next_row(player.y+1,next_x)
-        local p1 = player:player1()
+    if next_y > 0 and board[next_y][next_x] == empty and board[next_y+1][one_row_up_x+1] == empty then
+        move_piece(old_y,old_x,next_y,next_x)
         move_piece(p1.y,p1.x,next_y+1,one_row_up_x)
-
-        local p2 = player:player2()
         move_piece(p2.y,p2.x,next_y+1,one_row_up_x+1)
-
-        local p3 = player:player3()
         move_piece(p3.y,p3.x,next_y+2,next_x)
         
         player.x = next_x
@@ -119,14 +119,6 @@ function move_right() --todo combine into one method with move_left
         new_quad()
     end
 end
-
--- function move_right()
---     move_piece(player.y,player.x,next_y,next_x)
---     move_piece(player.y+1,player.x,next_y+1,next_x)
---     move_piece(player.y+1,player.x+1,next_y+1,next_x+1)
---     move_piece(player.y+2,player.x,next_y+2,next_x)
--- end
-
 
 function move_piece(old_y,old_x,new_y,new_x)
     board[new_y][new_x] = board[old_y][old_x]
@@ -168,7 +160,7 @@ function new_quad()
     player={
         y=board_height-2,
         x=4,
-        player1=function(self)
+        player1=function(self) --todo get all of these back in one method call
             return {
                 x=x_for_next_row(self.y,self.x),
                 y=self.y+1
