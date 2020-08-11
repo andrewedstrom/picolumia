@@ -82,11 +82,11 @@ end
 
 function move_left()
     local next_y=player.y-1
-    local next_x=move_block_left_x(player.y, player.x)
+    local next_x=x_for_next_row(player.y, player.x)
     if next_y > 0 and board[next_y][next_x] == empty then
         move_piece(player.y,player.x,next_y,next_x)
 
-        local one_row_up_x = move_block_left_x(player.y+1,next_x)
+        local one_row_up_x = x_for_next_row(player.y+1,next_x)
         move_piece(player.y+1,next_x,next_y+1,one_row_up_x)
         move_piece(player.y+1,next_x+1,next_y+1,one_row_up_x+1)
 
@@ -97,14 +97,6 @@ function move_left()
     else
         new_quad()
     end
-end
-
-function move_block_left_x(current_y, current_x)
-    -- either current x or x-1
-    if current_y % 2 == 1 then
-        return current_x
-    end
-    return current_x-1
 end
 
 -- function move_right()
@@ -156,22 +148,15 @@ function new_quad()
         y=board_height-2,
         x=4,
         player1=function(self)
-            if is_odd(self.y) then
-                return {
-                    x=self.x,
-                    y=self.y+1
-                }
-            end
             return {
-                x=self.x-1,
+                x=x_for_next_row(self.y,self.x),
                 y=self.y+1
             }
         end,
         player2=function(self)
-            local player1loc = self:player1()
             return {
-                x=player1loc.x+1,
-                y=player1loc.y
+                x=x_for_next_row(self.y,self.x)+1,
+                y=self.y+1
             }
         end,
         player3=function(self)
@@ -243,6 +228,14 @@ end
 -- utils
 function is_odd(num)
     return num % 2 != 0
+end
+
+function x_for_next_row(current_y, current_x)
+    -- either current x or x-1
+    if is_odd(current_y) then
+        return current_x
+    end
+    return current_x-1
 end
 
 __gfx__
