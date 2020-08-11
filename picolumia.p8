@@ -54,13 +54,25 @@ end
 function move_down(next_y,next_x)
     local next_y=player.y-2
     local next_x=player.x
+
     if next_y > 0 and board[next_y][next_x] == empty then
-        move_piece(player.y,player.x,next_y,next_x)
+        move_piece(player.y,player.x,next_y,player.x)
+
+        local middle_two_block_x=next_x
+        if not is_odd(next_y) then
+            middle_two_block_x-=1
+        end
+
         -- todo fix this
-        move_piece(player.y+1,player.x,next_y+1,next_x)
-        move_piece(player.y+1,player.x+1,next_y+1,next_x+1)
-        move_piece(player.y+2,player.x,next_y+2,next_x)
-        
+        local p1 = player:player1()
+        move_piece(p1.y,p1.x,next_y+1,middle_two_block_x)
+
+        local p2 = player:player2()
+        move_piece(p2.y,p2.x,next_y+1,middle_two_block_x+1)
+
+        local p3 = player:player3()
+        move_piece(p3.y,p3.x,next_y+2,player.x)
+
         player.x = next_x
         player.y = next_y
     else
@@ -131,15 +143,54 @@ function draw_board()
     end
 end
 
+
+
 -- create things
+
+-- player is represented as the bottom of the falling quad
+--     player3
+-- player1  player2
+--     player
 function new_quad()
     player={
         y=board_height-2,
-        x=4
+        x=4,
+        player1=function(self)
+            if is_odd(self.y) then
+                return {
+                    x=self.x,
+                    y=self.y+1
+                }
+            end
+            return {
+                x=self.x-1,
+                y=self.y+1
+            }
+        end,
+        player2=function(self)
+            local player1loc = self:player1()
+            return {
+                x=player1loc.x+1,
+                y=player1loc.y
+            }
+        end,
+        player3=function(self)
+            return {
+                x=self.x,
+                y=self.y+2
+            }
+        end
     }
-    board[board_height][4] = white
-    board[board_height-1][4] = red
-    board[board_height-1][5] = yellow
+    local p3 = player:player3()
+    board[p3.y][p3.x] = white
+    
+    local p2 = player:player2()
+    board[p2.y][p2.x] = yellow
+
+    local p1 = player:player1()
+    board[p1.y][p1.x] = red
+
+    board[player.y][player.x] = blue
     board[board_height-2][4] = blue
 end
 
@@ -177,7 +228,7 @@ function wall_here(y,x)
         return true
     elseif row_at_beginning_or_end(y, 6) and (x < 2 or 7 < x) then
         return true
-    elseif y % 2 != 0 and x == board_width then
+    elseif is_odd(y) and x == board_width then
         return true
     end
 
@@ -188,6 +239,11 @@ function row_at_beginning_or_end(real, expected)
     return real == expected or real == board_height-expected+1
 end
 
+
+-- utils
+function is_odd(num)
+    return num % 2 != 0
+end
 
 __gfx__
 00000000007700000088000000aa000000cc00000011000000000000000000000000000000000000000000000000000000000000000000000000000000000000
