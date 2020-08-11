@@ -6,6 +6,7 @@ local board
 local player
 local timer
 local speed
+local last_direction_moved -- "right" or "left"
 
 -- piece types
 local white = 8
@@ -26,6 +27,7 @@ local sprite_size = 6
 function _init()
     board=new_board()
     new_quad()
+    last_direction_moved="right"
 
     timer = 0
     speed = 30
@@ -44,6 +46,8 @@ function _update()
     elseif btnp(1) then
         move_right()
         timer = 0
+    elseif btn(3) then
+        move_down()
     end
 end
 
@@ -61,30 +65,44 @@ function move_down(next_y,next_x)
     local p2 = player:player2()
     local p3 = player:player3()
 
-    player.x = next_x
-    player.y = next_y
-
     if next_y > 0 and board[next_y][next_x] == empty then
         move_piece(old_y,old_x,next_y,next_x)
         move_piece(p1.y,p1.x,next_y+1,p1.x)
         move_piece(p2.y,p2.x,next_y+1,p2.x)
         move_piece(p3.y,p3.x,next_y+2,next_x)
-    else
+
+        player.x = next_x
+        player.y = next_y
+    elseif next_y <= 0 then
         new_quad()
+    else
+        local next_action = new_quad
+        if can_move_left() and can_move_right() then
+            if last_direction_moved == "right" then
+                next_action = move_right
+            else
+                next_action = move_left
+            end
+        elseif can_move_left() then
+            next_action = move_left
+        elseif can_move_right() then
+            next_action = move_right
+        end
+        next_action()
     end
 end
 
 function move_left()
     local old_y=player.y
     local old_x=player.x
-    local next_y=player.y-1
-    local next_x=x_for_next_row(player.y, player.x)
-    local one_row_up_x = x_for_next_row(player.y+1,next_x)
+    local next_y=old_y-1
+    local next_x=x_for_next_row(old_y, old_x)
+    local one_row_up_x = x_for_next_row(old_y+1,next_x)
     local p1 = player:player1()
     local p2 = player:player2()
     local p3 = player:player3()
 
-    if next_y > 0 and board[next_y][next_x] == empty  and board[next_y+1][one_row_up_x] == empty then
+    if can_move_left() then
         move_piece(old_y,old_x,next_y,next_x)
         move_piece(p1.y,p1.x,next_y+1,one_row_up_x)
         move_piece(p2.y,p2.x,next_y+1,one_row_up_x+1)
@@ -92,22 +110,32 @@ function move_left()
         
         player.x = next_x
         player.y = next_y
+        last_direction_moved = "left"
     else
         new_quad()
     end
 end
 
+function can_move_left()
+    local old_y=player.y
+    local old_x=player.x
+    local next_y=old_y-1
+    local next_x=x_for_next_row(old_y, old_x)
+    local one_row_up_x = x_for_next_row(old_y+1,next_x)
+    return next_y > 0 and board[next_y][next_x] == empty and board[next_y+1][one_row_up_x] == empty
+end
+
 function move_right() --todo combine into one method with move_left
     local old_y=player.y
     local old_x=player.x
-    local next_y=player.y-1
-    local next_x=x_for_next_row(player.y, player.x)+1
-    local one_row_up_x = x_for_next_row(player.y+1,next_x)
+    local next_y=old_y-1
+    local next_x=x_for_next_row(old_y, old_x)+1
+    local one_row_up_x = x_for_next_row(old_y+1,next_x)
     local p1 = player:player1()
     local p2 = player:player2()
     local p3 = player:player3()
 
-    if next_y > 0 and board[next_y][next_x] == empty and board[next_y+1][one_row_up_x+1] == empty then
+    if can_move_right() then
         move_piece(old_y,old_x,next_y,next_x)
         move_piece(p1.y,p1.x,next_y+1,one_row_up_x)
         move_piece(p2.y,p2.x,next_y+1,one_row_up_x+1)
@@ -115,9 +143,19 @@ function move_right() --todo combine into one method with move_left
         
         player.x = next_x
         player.y = next_y
+        last_direction_moved = "right"
     else
         new_quad()
     end
+end
+
+function can_move_right()
+    local old_y=player.y
+    local old_x=player.x
+    local next_y=old_y-1
+    local next_x=x_for_next_row(old_y, old_x)+1
+    local one_row_up_x = x_for_next_row(old_y+1,next_x)
+    return next_y > 0 and board[next_y][next_x] == empty and board[next_y+1][one_row_up_x+1] == empty
 end
 
 function move_piece(old_y,old_x,new_y,new_x)
