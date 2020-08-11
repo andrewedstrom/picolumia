@@ -58,17 +58,11 @@ function move_down(next_y,next_x)
     if next_y > 0 and board[next_y][next_x] == empty then
         move_piece(player.y,player.x,next_y,player.x)
 
-        local middle_two_block_x=next_x
-        if not is_odd(next_y) then
-            middle_two_block_x-=1
-        end
-
-        -- todo fix this
         local p1 = player:player1()
-        move_piece(p1.y,p1.x,next_y+1,middle_two_block_x)
+        move_piece(p1.y,p1.x,next_y+1,p1.x)
 
         local p2 = player:player2()
-        move_piece(p2.y,p2.x,next_y+1,middle_two_block_x+1)
+        move_piece(p2.y,p2.x,next_y+1,p2.x)
 
         local p3 = player:player3()
         move_piece(p3.y,p3.x,next_y+2,player.x)
