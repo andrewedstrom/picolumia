@@ -41,9 +41,9 @@ function _update()
     if btnp(0) then
         move_left()
         timer = 0
-
-    -- elseif btn(1) then
-        -- move_right()
+    elseif btnp(1) then
+        move_right()
+        timer = 0
     end
 end
 
@@ -81,16 +81,39 @@ function move_left()
         move_piece(player.y,player.x,next_y,next_x)
 
         local one_row_up_x = x_for_next_row(player.y+1,next_x)
-        move_piece(player.y+1,next_x,next_y+1,one_row_up_x)
-        move_piece(player.y+1,next_x+1,next_y+1,one_row_up_x+1)
+        local p1 = player:player1()
+        move_piece(p1.y,p1.x,next_y+1,one_row_up_x)
 
-        move_piece(player.y+2,player.x,next_y+2,next_x)
+        local p2 = player:player2()
+        move_piece(p2.y,p2.x,next_y+1,one_row_up_x+1)
+
+        local p3 = player:player3()
+        move_piece(p3.y,p3.x,next_y+2,next_x)
         
         player.x = next_x
         player.y = next_y
     else
         new_quad()
     end
+end
+
+function move_right()
+    -- local next_y=player.y-1
+    -- local next_x=x_for_next_row(player.y, player.x)+1
+    -- if next_y > 0 and board[next_y][next_x] == empty then
+    --     move_piece(player.y,player.x,next_y,next_x)
+
+    --     local one_row_up_x = x_for_next_row(player.y+1,next_x)
+    --     move_piece(player.y+1,next_x,next_y+1,one_row_up_x)
+    --     move_piece(player.y+1,next_x+1,next_y+1,one_row_up_x+1)
+
+    --     move_piece(player.y+2,player.x,next_y+2,next_x)
+        
+    --     player.x = next_x
+    --     player.y = next_y
+    -- else
+    --     new_quad()
+    -- end
 end
 
 -- function move_right()
