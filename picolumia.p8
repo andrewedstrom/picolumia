@@ -105,9 +105,9 @@ function move_down(next_y,next_x)
         player.x = next_x
         player.y = next_y
     elseif next_y < 0 then
-        new_quad()
+        hit_bottom()
     else
-        local next_action = new_quad
+        local next_action = hit_bottom
         if can_move_left() and can_move_right() then
             if last_direction_moved == "right" then
                 next_action = move_right
@@ -143,7 +143,7 @@ function move_left()
         player.y = next_y
         last_direction_moved = "left"
     elseif not can_move_right() then
-        new_quad()
+        hit_bottom()
     end
 end
 
@@ -176,7 +176,7 @@ function move_right() --todo combine into one method with move_left
         player.y = next_y
         last_direction_moved = "right"
     elseif not can_move_left() then
-        new_quad()
+        hit_bottom()
     end
 end
 
@@ -217,7 +217,9 @@ function draw_board()
     end
 end
 
-
+function hit_bottom()
+    new_quad()
+end
 
 -- create things
 
@@ -323,14 +325,13 @@ function wall_here(y,x)
     return false
 end
 
-function row_at_beginning_or_end(real, expected)
-    return real == expected or real == board_height-expected+1
-end
-
-
 -- utils
 function is_odd(num)
     return num % 2 != 0
+end
+
+function row_at_beginning_or_end(real, expected)
+    return real == expected or real == board_height-expected+1
 end
 
 function x_for_next_row(current_y, current_x)
