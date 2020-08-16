@@ -138,7 +138,7 @@ function move_left()
         move_piece(p1.y,p1.x,next_y+1,one_row_up_x)
         move_piece(p2.y,p2.x,next_y+1,one_row_up_x+1)
         move_piece(p3.y,p3.x,next_y+2,next_x)
-        
+
         player.x = next_x
         player.y = next_y
         last_direction_moved = "left"
@@ -171,7 +171,7 @@ function move_right() --todo combine into one method with move_left
         move_piece(p1.y,p1.x,next_y+1,one_row_up_x)
         move_piece(p2.y,p2.x,next_y+1,one_row_up_x+1)
         move_piece(p3.y,p3.x,next_y+2,next_x)
-        
+
         player.x = next_x
         player.y = next_y
         last_direction_moved = "right"
@@ -207,7 +207,7 @@ function draw_board()
         for x = 1, board_width do
             local x_loc=x*piece_width
             if y % 2 != 0 then
-                x_loc += piece_width/2 
+                x_loc += piece_width/2
             end
             local y_loc=bottom-y*piece_height
             if board[y][x] != wall then
@@ -256,7 +256,7 @@ function new_quad()
     }
     local p3 = player:player3()
     board[p3.y][p3.x] = random_piece()
-    
+
     local p2 = player:player2()
     board[p2.y][p2.x] = random_piece()
 
