@@ -7,6 +7,7 @@ local player
 local timer
 local speed
 local last_direction_moved -- "right" or "left"
+local hit_bottom_coroutine
 
 -- piece types
 local white = 8
@@ -40,19 +41,23 @@ function _update()
         timer = 0
     end
 
-    if btnp(0) then
-        move_left()
-        timer = 0
-    elseif btnp(1) then
-        move_right()
-        timer = 0
-    elseif btn(3) then
-        move_down()
-    end
-    if btnp(4) then
-        rotate_counter_clockwise()
-    elseif btnp(5) then
-        rotate_clockwise()
+    if hit_bottom_coroutine and costatus(hit_bottom_coroutine) != 'dead' then
+        coresume(hit_bottom_coroutine)
+    else
+        if btnp(0) then
+            move_left()
+            timer = 0
+        elseif btnp(1) then
+            move_right()
+            timer = 0
+        elseif btn(3) then
+            move_down()
+        end
+        if btnp(4) then
+            rotate_counter_clockwise()
+        elseif btnp(5) then
+            rotate_clockwise()
+        end
     end
 end
 
@@ -66,20 +71,17 @@ end
 -- The board is organized with 1,1 as the bottom left corner
 -- every other row is drawn shifted right by a half position
 -- the diamond shape is made by setting the out-of-bounds spaces to "wall"
-
 function draw_board()
-    for y = 1, board_height do
-        for x = 1, board_width do
-            local x_loc=x*piece_width
-            if is_odd(y) then
-                x_loc += piece_width/2
-            end
-            local y_loc=bottom-y*piece_height
-            if board[y][x] != wall then
-                sspr(board[y][x],0,sprite_size,sprite_size,x_loc,y_loc)
-            end
+    for_all_tiles(function(y,x)
+        local x_loc=x*piece_width
+        if is_odd(y) then
+            x_loc += piece_width/2
         end
-    end
+        local y_loc=bottom-y*piece_height
+        if board[y][x] != wall then
+            sspr(board[y][x],0,sprite_size,sprite_size,x_loc,y_loc)
+        end
+    end)
 end
 
 function tick()
@@ -233,71 +235,86 @@ function move_piece(old_y,old_x,new_y,new_x)
     board[old_y][old_x] = empty
 end
 
-function let_pieces_settle()
-    local falling=true
-    while falling do
-        falling=false
-        -- todo make this happen over multiple frames
-        for_all_tiles(function(y,x)
-            if board[y][x] != empty then
-                if block_can_fall_left(y,x) then
-                    move_piece(y, x, y-1, x_for_next_row(y,x))
-                    falling=true
-                elseif block_can_fall_right(y,x) then
-                    move_piece(y, x, y-1, x_for_next_row(y,x)+1)
-                    falling=true
-                end
-            end
-        end)
-    end
-end
-
 function hit_bottom()
-    let_pieces_settle()
-    local cleared_things=true -- todo this is a lie at this moment
-    while cleared_things do
-        cleared_things=false
+    hit_bottom_coroutine= cocreate(function()
+        function let_pieces_settle()
+            --todo do this as a coroutine too
+            local falling=true
+            while falling do
+                falling=false
+                -- todo make this happen over multiple frames
+                for_all_tiles(function(y,x)
+                    if board[y][x] != empty then
+                        if block_can_fall_left(y,x) then
+                            move_piece(y, x, y-1, x_for_next_row(y,x))
+                            falling=true
+                        elseif block_can_fall_right(y,x) then
+                            move_piece(y, x, y-1, x_for_next_row(y,x)+1)
+                            falling=true
+                        end
+                    end
+                end)
 
-        for_all_tiles(function(y,x)
-            local current_piece = board[y][x]
-            if current_piece != empty then
-                local one_row_up_x = x_for_next_row(y, x)
-                -- todo make it possible to get a square and a line in situations like:
-                -- x x x
-                -- x x
-
-
-                -- square!
-                if current_piece == board[y+1][one_row_up_x] and current_piece == board[y+1][one_row_up_x+1] and current_piece == board[y+2][x] then
-                    cleared_things=true
-                    board[y][x] = empty
-                    board[y+1][one_row_up_x] = empty
-                    board[y+1][one_row_up_x+1] = empty
-                    board[y+2][x] = empty
-                end
-                -- line going left!
-                if current_piece == board[y+1][one_row_up_x] and current_piece == board[y+2][x-1] then
-                    cleared_things = true
-                    board[y][x] = empty
-                    board[y+1][one_row_up_x] = empty
-                    board[y+2][x-1] = empty
-                end
-                -- line going right!
-                if current_piece == board[y+1][one_row_up_x+1] and current_piece == board[y+2][x+1] then
-                    cleared_things = true
-                    board[y][x] = empty
-                    board[y+1][one_row_up_x+1] = empty
-                    board[y+2][x+1] = empty
-                end
+                yield()
+                yield()
+                yield()
+                yield()
             end
-        end)
-
-        if cleared_things then
-            let_pieces_settle()
         end
-    end
 
-    new_quad()
+        let_pieces_settle()
+
+        yield()
+        yield()
+        yield()
+        yield()
+        local cleared_things=true -- todo this is a lie at this moment
+        while cleared_things do
+            cleared_things=false
+
+            for_all_tiles(function(y,x)
+                local current_piece = board[y][x]
+                if current_piece != empty then
+                    local one_row_up_x = x_for_next_row(y, x)
+                    -- todo make it possible to get a square and a line in situations like:
+                    -- x x x
+                    -- x x
+
+                    -- square!
+                    if current_piece == board[y+1][one_row_up_x] and current_piece == board[y+1][one_row_up_x+1] and current_piece == board[y+2][x] then
+                        cleared_things=true
+                        board[y][x] = empty
+                        board[y+1][one_row_up_x] = empty
+                        board[y+1][one_row_up_x+1] = empty
+                        board[y+2][x] = empty
+                    end
+                    -- line going left!
+                    if current_piece == board[y+1][one_row_up_x] and current_piece == board[y+2][x-1] then
+                        cleared_things = true
+                        board[y][x] = empty
+                        board[y+1][one_row_up_x] = empty
+                        board[y+2][x-1] = empty
+                    end
+                    -- line going right!
+                    if current_piece == board[y+1][one_row_up_x+1] and current_piece == board[y+2][x+1] then
+                        cleared_things = true
+                        board[y][x] = empty
+                        board[y+1][one_row_up_x+1] = empty
+                        board[y+2][x+1] = empty
+                    end
+                end
+            end)
+            yield()
+            yield()
+            yield()
+            yield()
+            if cleared_things then
+                let_pieces_settle()
+            end
+        end
+
+        new_quad()
+    end)
 end
 
 function for_all_tiles(callback)
@@ -309,8 +326,6 @@ function for_all_tiles(callback)
         end
     end
 end
-
--- create things
 
 -- player is represented as the bottom of the falling quad
 --     player3
