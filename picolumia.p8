@@ -233,8 +233,27 @@ function move_piece(old_y,old_x,new_y,new_x)
     board[old_y][old_x] = empty
 end
 
+function let_pieces_settle()
+    local falling=true
+    while falling do
+        falling=false
+        -- todo make this happen over multiple frames
+        for_all_tiles(function(y,x)
+            if board[y][x] != empty then
+                if block_can_fall_left(y,x) then
+                    move_piece(y, x, y-1, x_for_next_row(y,x))
+                    falling=true
+                elseif block_can_fall_right(y,x) then
+                    move_piece(y, x, y-1, x_for_next_row(y,x)+1)
+                    falling=true
+                end
+            end
+        end)
+    end
+end
+
 function hit_bottom()
-    local current_piece
+    let_pieces_settle()
     local cleared_things=true -- todo this is a lie at this moment
     while cleared_things do
         cleared_things=false
@@ -243,6 +262,11 @@ function hit_bottom()
             local current_piece = board[y][x]
             if current_piece != empty then
                 local one_row_up_x = x_for_next_row(y, x)
+                -- todo make it possible to get a square and a line in situations like:
+                -- x x x
+                -- x x
+
+
                 -- square!
                 if current_piece == board[y+1][one_row_up_x] and current_piece == board[y+1][one_row_up_x+1] and current_piece == board[y+2][x] then
                     cleared_things=true
@@ -269,23 +293,7 @@ function hit_bottom()
         end)
 
         if cleared_things then
-            -- make pieces fall
-            local falling=true
-            while falling do
-                falling=false
-                -- todo make this happen over multiple frames
-                for_all_tiles(function(y,x)
-                    if board[y][x] != empty then
-                        if block_can_fall_left(y,x) then
-                            move_piece(y, x, y-1, x_for_next_row(y,x))
-                            falling=true
-                        elseif block_can_fall_right(y,x) then
-                            move_piece(y, x, y-1, x_for_next_row(y,x)+1)
-                            falling=true
-                        end
-                    end
-                end)
-            end
+            let_pieces_settle()
         end
     end
 
