@@ -243,13 +243,27 @@ function hit_bottom()
             local current_piece = board[y][x]
             if current_piece != empty then
                 local one_row_up_x = x_for_next_row(y, x)
+                -- square!
                 if current_piece == board[y+1][one_row_up_x] and current_piece == board[y+1][one_row_up_x+1] and current_piece == board[y+2][x] then
-                    -- we've got ourselves a square! delete it
                     cleared_things=true
                     board[y][x] = empty
                     board[y+1][one_row_up_x] = empty
                     board[y+1][one_row_up_x+1] = empty
                     board[y+2][x] = empty
+                end
+                -- line going left!
+                if current_piece == board[y+1][one_row_up_x] and current_piece == board[y+2][x-1] then
+                    cleared_things = true
+                    board[y][x] = empty
+                    board[y+1][one_row_up_x] = empty
+                    board[y+2][x-1] = empty
+                end
+                -- line going right!
+                if current_piece == board[y+1][one_row_up_x+1] and current_piece == board[y+2][x+1] then
+                    cleared_things = true
+                    board[y][x] = empty
+                    board[y+1][one_row_up_x+1] = empty
+                    board[y+2][x+1] = empty
                 end
             end
         end)
