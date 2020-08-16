@@ -148,12 +148,14 @@ function move_left()
 end
 
 function can_move_left()
-    local old_y=player.y
-    local old_x=player.x
-    local next_y=old_y-1
-    local next_x=x_for_next_row(old_y, old_x)
-    local one_row_up_x = x_for_next_row(old_y+1,next_x)
-    return next_y > 0 and board[next_y][next_x] == empty and board[next_y+1][one_row_up_x] == empty
+    local p1 = player:player1()
+    return player.y-1 > 0 and block_can_fall_left(player.y,player.x) and block_can_fall_left(p1.y,p1.x)
+end
+
+function block_can_fall_left(old_y,old_x)
+    local next_x = x_for_next_row(old_y, old_x)
+    local next_y = old_y-1
+    return board[next_y][next_x] == empty
 end
 
 function move_right() --todo combine into one method with move_left
