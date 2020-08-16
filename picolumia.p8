@@ -56,9 +56,37 @@ function _update()
     end
 end
 
+function _draw()
+    cls()
+    rect(0,0,127,127,5)
+
+    draw_board()
+end
+
+-- The board is organized with 1,1 as the bottom left corner
+-- every other row is drawn shifted right by a half position
+-- the diamond shape is made by setting the out-of-bounds spaces to "wall"
+
+function draw_board()
+    for y = 1, board_height do
+        for x = 1, board_width do
+            local x_loc=x*piece_width
+            if is_odd(y) then
+                x_loc += piece_width/2
+            end
+            local y_loc=bottom-y*piece_height
+            if board[y][x] != wall then
+                sspr(board[y][x],0,sprite_size,sprite_size,x_loc,y_loc)
+            end
+        end
+    end
+end
+
 function tick()
     move_down()
 end
+
+-- Moving blocks
 
 function rotate_clockwise()
     local p0 = player:player0()
@@ -155,6 +183,10 @@ end
 function block_can_fall_left(old_y,old_x)
     local next_x = x_for_next_row(old_y, old_x)
     local next_y = old_y-1
+    if next_y < 1 or next_x < 1 then
+        return false
+    end
+
     return board[next_y][next_x] == empty
 end
 
@@ -190,6 +222,9 @@ end
 function block_can_fall_right(old_y,old_x)
     local next_x = x_for_next_row(old_y, old_x)+1
     local next_y = old_y-1
+    if next_y < 1 or next_x > board_width then
+        return false
+    end
     return board[next_y][next_x] == empty
 end
 
@@ -198,33 +233,59 @@ function move_piece(old_y,old_x,new_y,new_x)
     board[old_y][old_x] = empty
 end
 
+function hit_bottom()
+    local current_piece
+    local cleared_things=true -- todo this is a lie at this moment
+    while cleared_things do
+        cleared_things=false
 
-function _draw()
-    cls()
-    rect(0,0,127,127,5)
-
-    draw_board()
-end
-
-function draw_board()
-    for y = 1, board_height do
-        for x = 1, board_width do
-            local x_loc=x*piece_width
-            if y % 2 != 0 then
-                x_loc += piece_width/2
+        for_all_tiles(function(y,x)
+            local current_piece = board[y][x]
+            if current_piece != empty then
+                local one_row_up_x = x_for_next_row(y, x)
+                if current_piece == board[y+1][one_row_up_x] and current_piece == board[y+1][one_row_up_x+1] and current_piece == board[y+2][x] then
+                    -- we've got ourselves a square! delete it
+                    cleared_things=true
+                    board[y][x] = empty
+                    board[y+1][one_row_up_x] = empty
+                    board[y+1][one_row_up_x+1] = empty
+                    board[y+2][x] = empty
+                end
             end
-            local y_loc=bottom-y*piece_height
-            if board[y][x] != wall then
-                sspr(board[y][x],0,sprite_size,sprite_size,x_loc,y_loc)
+        end)
+
+        if cleared_things then
+            -- make pieces fall
+            local falling=true
+            while falling do
+                falling=false
+                -- todo make this happen over multiple frames
+                for_all_tiles(function(y,x)
+                    if board[y][x] != empty then
+                        if block_can_fall_left(y,x) then
+                            move_piece(y, x, y-1, x_for_next_row(y,x))
+                            falling=true
+                        elseif block_can_fall_right(y,x) then
+                            move_piece(y, x, y-1, x_for_next_row(y,x)+1)
+                            falling=true
+                        end
+                    end
+                end)
             end
         end
     end
-end
-
-function hit_bottom()
-
 
     new_quad()
+end
+
+function for_all_tiles(callback)
+    for y = 1, board_height do
+        for x = 1, board_width do
+            if board[y][x] != wall then
+                callback(y, x)
+            end
+        end
+    end
 end
 
 -- create things
@@ -273,6 +334,7 @@ function new_quad()
 
     board[player.y][player.x] = random_piece()
 
+    -- Don't allow all 4 pieces to be the same color
     while board[player.y][player.x] == board[p1.y][p1.x] and board[p1.y][p1.x] == board[p2.y][p2.x] and board[p2.y][p2.x] == board[p3.y][p3.x] do
         board[player.y][player.x] = random_piece()
     end
@@ -331,7 +393,6 @@ function wall_here(y,x)
     return false
 end
 
--- utils
 function is_odd(num)
     return num % 2 != 0
 end
