@@ -272,38 +272,38 @@ function hit_bottom()
         while cleared_things do
             cleared_things=false
 
+            local blocks_to_delete ={} -- y,x pairs
             for_all_tiles(function(y,x)
                 local current_piece = board[y][x]
                 if current_piece != empty then
                     local one_row_up_x = x_for_next_row(y, x)
-                    -- todo make it possible to get a square and a line in situations like:
-                    -- x x x
-                    -- x x
 
                     -- square!
                     if current_piece == board[y+1][one_row_up_x] and current_piece == board[y+1][one_row_up_x+1] and current_piece == board[y+2][x] then
-                        cleared_things=true
-                        board[y][x] = empty
-                        board[y+1][one_row_up_x] = empty
-                        board[y+1][one_row_up_x+1] = empty
-                        board[y+2][x] = empty
+                        add(blocks_to_delete,{y=y,x=x})
+                        add(blocks_to_delete,{y=y+1,x=one_row_up_x})
+                        add(blocks_to_delete,{y=y+1,x=one_row_up_x+1})
+                        add(blocks_to_delete,{y=y+2,x=x})
                     end
                     -- line going left!
                     if current_piece == board[y+1][one_row_up_x] and current_piece == board[y+2][x-1] then
-                        cleared_things = true
-                        board[y][x] = empty
-                        board[y+1][one_row_up_x] = empty
-                        board[y+2][x-1] = empty
+                        add(blocks_to_delete,{y=y,x=x})
+                        add(blocks_to_delete,{y=y+1,x=one_row_up_x})
+                        add(blocks_to_delete,{y=y+2,x=x-1})
                     end
                     -- line going right!
                     if current_piece == board[y+1][one_row_up_x+1] and current_piece == board[y+2][x+1] then
-                        cleared_things = true
-                        board[y][x] = empty
-                        board[y+1][one_row_up_x+1] = empty
-                        board[y+2][x+1] = empty
+                        add(blocks_to_delete,{y=y,x=x})
+                        add(blocks_to_delete,{y=y+1,x=one_row_up_x+1})
+                        add(blocks_to_delete,{y=y+2,x=x+1})
                     end
                 end
             end)
+
+            for b in all(blocks_to_delete) do
+                cleared_things = true
+                board[b.y][b.x] = empty
+            end
             yield()
             yield()
             yield()
