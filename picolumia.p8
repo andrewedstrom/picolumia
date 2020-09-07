@@ -411,6 +411,7 @@ function new_board()
 end
 
 function wall_here(y,x)
+    -- TODO should still be cleaned up more
     return (row_at_beginning_or_end(y, 1) and x != 4) or
         (row_at_beginning_or_end(y, 2) and (x < 4 or 5 < x)) or
         (row_at_beginning_or_end(y, 3) and (x < 3 or 5 < x)) or
