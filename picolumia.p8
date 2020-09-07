@@ -7,7 +7,7 @@ local player
 local timer
 local speed
 local last_direction_moved -- "right" or "left"
-local hit_bottom_coroutine
+local blocks_clearing
 
 -- piece types
 local white = 8
@@ -41,9 +41,10 @@ function _update()
         timer = 0
     end
 
-    if hit_bottom_coroutine and costatus(hit_bottom_coroutine) != 'dead' then
-        coresume(hit_bottom_coroutine)
+    if blocks_clearing and costatus(blocks_clearing) != 'dead' then
+        coresume(blocks_clearing)
     else
+        -- handle input
         if btnp(0) then
             move_left()
             timer = 0
@@ -236,7 +237,7 @@ function move_piece(old_y,old_x,new_y,new_x)
 end
 
 function hit_bottom()
-    hit_bottom_coroutine= cocreate(function()
+    blocks_clearing=cocreate(function()
         function let_pieces_settle()
             --todo do this as a coroutine too
             local falling=true
