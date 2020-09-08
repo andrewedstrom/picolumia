@@ -4,6 +4,7 @@ __lua__
 
 local board
 local player
+local next_quad
 local timer
 local speed
 local last_direction_moved -- "right" or "left"
@@ -27,7 +28,7 @@ local sprite_size = 6
 
 function _init()
     board=new_board()
-    new_quad()
+    new_player_quad()
     last_direction_moved="right"
 
     timer = 0
@@ -67,6 +68,7 @@ function _draw()
     rect(0,0,127,127,5)
 
     draw_board()
+    draw_next_piece()
 end
 
 -- The board is organized with 1,1 as the bottom left corner
@@ -83,6 +85,15 @@ function draw_board()
             sspr(board[y][x],0,sprite_size,sprite_size,x_loc,y_loc)
         end
     end)
+end
+
+function draw_next_piece()
+    local x_loc=piece_width*board_width+piece_width
+    local y_loc=bottom-board_height*piece_height
+    sspr(next_quad.p0,0,sprite_size,sprite_size,x_loc,y_loc)
+    sspr(next_quad.p1,0,sprite_size,sprite_size,x_loc-piece_width/2,y_loc+piece_height)
+    sspr(next_quad.p2,0,sprite_size,sprite_size,x_loc+piece_width/2,y_loc+piece_height)
+    sspr(next_quad.p3,0,sprite_size,sprite_size,x_loc,y_loc+piece_height*2)
 end
 
 function tick()
@@ -314,7 +325,7 @@ function hit_bottom()
             end
         end
 
-        new_quad()
+        new_player_quad()
     end)
 end
 
@@ -332,7 +343,7 @@ end
 --     player3
 -- player1  player2
 --     player0
-function new_quad()
+function new_player_quad()
     player={
         y=board_height-2,
         x=4,
@@ -376,6 +387,24 @@ function new_quad()
     while board[player.y][player.x] == board[p1.y][p1.x] and board[p1.y][p1.x] == board[p2.y][p2.x] and board[p2.y][p2.x] == board[p3.y][p3.x] do
         board[player.y][player.x] = random_piece()
     end
+
+    next_quad=new_quad()
+end
+
+function new_quad()
+    local p0=random_piece()
+    local p1=random_piece()
+    local p2=random_piece()
+    local p3=random_piece()
+    while p0 == p1 and p1 == p2 and p2 == p3 do
+        p3=random_piece()
+    end
+    return {
+        p0=p0,
+        p1=p1,
+        p2=p2,
+        p3=p3
+    }
 end
 
 function random_piece()
