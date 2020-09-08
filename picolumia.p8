@@ -28,6 +28,7 @@ local sprite_size = 6
 
 function _init()
     board=new_board()
+    make_next_quad()
     new_player_quad()
     last_direction_moved="right"
 
@@ -90,10 +91,10 @@ end
 function draw_next_piece()
     local x_loc=piece_width*board_width+piece_width
     local y_loc=bottom-board_height*piece_height
-    sspr(next_quad.p0,0,sprite_size,sprite_size,x_loc,y_loc)
+    sspr(next_quad.p3,0,sprite_size,sprite_size,x_loc,y_loc)
     sspr(next_quad.p1,0,sprite_size,sprite_size,x_loc-piece_width/2,y_loc+piece_height)
     sspr(next_quad.p2,0,sprite_size,sprite_size,x_loc+piece_width/2,y_loc+piece_height)
-    sspr(next_quad.p3,0,sprite_size,sprite_size,x_loc,y_loc+piece_height*2)
+    sspr(next_quad.p0,0,sprite_size,sprite_size,x_loc,y_loc+piece_height*2)
 end
 
 function tick()
@@ -373,25 +374,20 @@ function new_player_quad()
         end
     }
     local p3 = player:player3()
-    board[p3.y][p3.x] = random_piece()
+    board[p3.y][p3.x] = next_quad.p3
 
     local p2 = player:player2()
-    board[p2.y][p2.x] = random_piece()
+    board[p2.y][p2.x] = next_quad.p2
 
     local p1 = player:player1()
-    board[p1.y][p1.x] = random_piece()
+    board[p1.y][p1.x] = next_quad.p1
 
-    board[player.y][player.x] = random_piece()
+    board[player.y][player.x] = next_quad.p0
 
-    -- Don't allow all 4 pieces to be the same color
-    while board[player.y][player.x] == board[p1.y][p1.x] and board[p1.y][p1.x] == board[p2.y][p2.x] and board[p2.y][p2.x] == board[p3.y][p3.x] do
-        board[player.y][player.x] = random_piece()
-    end
-
-    next_quad=new_quad()
+    make_next_quad()
 end
 
-function new_quad()
+function make_next_quad()
     local p0=random_piece()
     local p1=random_piece()
     local p2=random_piece()
@@ -399,7 +395,7 @@ function new_quad()
     while p0 == p1 and p1 == p2 and p2 == p3 do
         p3=random_piece()
     end
-    return {
+    next_quad={
         p0=p0,
         p1=p1,
         p2=p2,
