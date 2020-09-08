@@ -121,17 +121,16 @@ function rotate_counter_clockwise()
 end
 
 function move_down(next_y,next_x)
-    local old_y=player.y
-    local old_x=player.x
-    local next_y=player.y-2
-    local next_x=player.x
-
+    local p0 = player:player0()
     local p1 = player:player1()
     local p2 = player:player2()
     local p3 = player:player3()
 
+    local next_y=player.y-2
+    local next_x=player.x
+
     if next_y > 0 and board[next_y][next_x] == empty then
-        move_piece(old_y,old_x,next_y,next_x)
+        move_piece(p0.y,p0.x,next_y,next_x)
         move_piece(p1.y,p1.x,next_y+1,p1.x)
         move_piece(p2.y,p2.x,next_y+1,p2.x)
         move_piece(p3.y,p3.x,next_y+2,next_x)
@@ -158,17 +157,17 @@ function move_down(next_y,next_x)
 end
 
 function move_left()
-    local old_y=player.y
-    local old_x=player.x
-    local next_y=old_y-1
-    local next_x=x_for_next_row(old_y, old_x)
-    local one_row_up_x = x_for_next_row(old_y+1,next_x)
+    local p0 = player:player0()
     local p1 = player:player1()
     local p2 = player:player2()
     local p3 = player:player3()
 
+    local next_y=p0.y-1
+    local next_x=x_for_next_row(p0.y, p0.x)
+    local one_row_up_x = x_for_next_row(p0.y+1,next_x)
+
     if can_move_left() then
-        move_piece(old_y,old_x,next_y,next_x)
+        move_piece(p0.y,p0.x,next_y,next_x)
         move_piece(p1.y,p1.x,next_y+1,one_row_up_x)
         move_piece(p2.y,p2.x,next_y+1,one_row_up_x+1)
         move_piece(p3.y,p3.x,next_y+2,next_x)
@@ -197,17 +196,17 @@ function block_can_fall_left(old_y,old_x)
 end
 
 function move_right() --todo combine into one method with move_left
-    local old_y=player.y
-    local old_x=player.x
-    local next_y=old_y-1
-    local next_x=x_for_next_row(old_y, old_x)+1
-    local one_row_up_x = x_for_next_row(old_y+1,next_x)
+    local p0 = player:player0()
     local p1 = player:player1()
     local p2 = player:player2()
     local p3 = player:player3()
 
+    local next_y=p0.y-1
+    local next_x=x_for_next_row(p0.y, p0.x)+1
+    local one_row_up_x = x_for_next_row(p0.y+1,next_x)
+
     if can_move_right() then
-        move_piece(old_y,old_x,next_y,next_x)
+        move_piece(p0.y,p0.x,next_y,next_x)
         move_piece(p1.y,p1.x,next_y+1,one_row_up_x)
         move_piece(p2.y,p2.x,next_y+1,one_row_up_x+1)
         move_piece(p3.y,p3.x,next_y+2,next_x)
@@ -373,7 +372,8 @@ function new_player_quad()
     local p1 = player:player1()
     board[p1.y][p1.x] = next_piece.p1
 
-    board[player.y][player.x] = next_piece.p0
+    local p0 = player:player0()
+    board[p0.y][p0.x] = next_piece.p0
 
     make_next_piece()
 end
@@ -395,8 +395,8 @@ function make_next_piece()
             local x_loc=piece_width*board_width+piece_width
             local y_loc=bottom-board_height*piece_height
             sspr(p3,0,sprite_size,sprite_size,x_loc,y_loc)
-            sspr(p1,0,sprite_size,sprite_size,x_loc-piece_width/2,y_loc+piece_height)
             sspr(p2,0,sprite_size,sprite_size,x_loc+piece_width/2,y_loc+piece_height)
+            sspr(p1,0,sprite_size,sprite_size,x_loc-piece_width/2,y_loc+piece_height)
             sspr(p0,0,sprite_size,sprite_size,x_loc,y_loc+piece_height*2)
         end
     }
