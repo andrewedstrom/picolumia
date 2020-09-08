@@ -69,7 +69,7 @@ function _draw()
     rect(0,0,127,127,5)
 
     draw_board()
-    draw_next_piece()
+    next_quad:draw()
 end
 
 -- The board is organized with 1,1 as the bottom left corner
@@ -86,15 +86,6 @@ function draw_board()
             sspr(board[y][x],0,sprite_size,sprite_size,x_loc,y_loc)
         end
     end)
-end
-
-function draw_next_piece()
-    local x_loc=piece_width*board_width+piece_width
-    local y_loc=bottom-board_height*piece_height
-    sspr(next_quad.p3,0,sprite_size,sprite_size,x_loc,y_loc)
-    sspr(next_quad.p1,0,sprite_size,sprite_size,x_loc-piece_width/2,y_loc+piece_height)
-    sspr(next_quad.p2,0,sprite_size,sprite_size,x_loc+piece_width/2,y_loc+piece_height)
-    sspr(next_quad.p0,0,sprite_size,sprite_size,x_loc,y_loc+piece_height*2)
 end
 
 function tick()
@@ -399,7 +390,15 @@ function make_next_quad()
         p0=p0,
         p1=p1,
         p2=p2,
-        p3=p3
+        p3=p3,
+        draw=function(self)
+            local x_loc=piece_width*board_width+piece_width
+            local y_loc=bottom-board_height*piece_height
+            sspr(p3,0,sprite_size,sprite_size,x_loc,y_loc)
+            sspr(p1,0,sprite_size,sprite_size,x_loc-piece_width/2,y_loc+piece_height)
+            sspr(p2,0,sprite_size,sprite_size,x_loc+piece_width/2,y_loc+piece_height)
+            sspr(p0,0,sprite_size,sprite_size,x_loc,y_loc+piece_height*2)
+        end
     }
 end
 
