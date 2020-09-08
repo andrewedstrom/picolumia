@@ -4,7 +4,7 @@ __lua__
 
 local board
 local player
-local next_quad
+local next_piece
 local timer
 local speed
 local last_direction_moved -- "right" or "left"
@@ -28,7 +28,7 @@ local sprite_size = 6
 
 function _init()
     board=new_board()
-    make_next_quad()
+    make_next_piece()
     new_player_quad()
     last_direction_moved="right"
 
@@ -69,7 +69,7 @@ function _draw()
     rect(0,0,127,127,5)
 
     draw_board()
-    next_quad:draw()
+    next_piece:draw()
 end
 
 -- The board is organized with 1,1 as the bottom left corner
@@ -365,20 +365,20 @@ function new_player_quad()
         end
     }
     local p3 = player:player3()
-    board[p3.y][p3.x] = next_quad.p3
+    board[p3.y][p3.x] = next_piece.p3
 
     local p2 = player:player2()
-    board[p2.y][p2.x] = next_quad.p2
+    board[p2.y][p2.x] = next_piece.p2
 
     local p1 = player:player1()
-    board[p1.y][p1.x] = next_quad.p1
+    board[p1.y][p1.x] = next_piece.p1
 
-    board[player.y][player.x] = next_quad.p0
+    board[player.y][player.x] = next_piece.p0
 
-    make_next_quad()
+    make_next_piece()
 end
 
-function make_next_quad()
+function make_next_piece()
     local p0=random_piece()
     local p1=random_piece()
     local p2=random_piece()
@@ -386,7 +386,7 @@ function make_next_quad()
     while p0 == p1 and p1 == p2 and p2 == p3 do
         p3=random_piece()
     end
-    next_quad={
+    next_piece={
         p0=p0,
         p1=p1,
         p2=p2,
