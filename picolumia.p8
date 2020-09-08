@@ -261,13 +261,11 @@ function hit_bottom()
                 yield()
                 yield()
                 yield()
-                yield()
             end
         end
 
         let_pieces_settle()
 
-        yield()
         yield()
         yield()
         yield()
@@ -307,7 +305,6 @@ function hit_bottom()
                 cleared_things = true
                 board[b.y][b.x] = empty
             end
-            yield()
             yield()
             yield()
             yield()
