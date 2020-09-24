@@ -9,6 +9,7 @@ local timer
 local speed
 local last_direction_moved -- "right" or "left"
 local blocks_clearing
+local game_state -- "playing", "gameover"
 
 -- piece types
 local white = 8
@@ -32,12 +33,16 @@ function _init()
     make_next_piece()
     new_player_quad()
     last_direction_moved="right"
+    game_state="playing"
 
     timer = 0
     speed = 30
 end
 
 function _update()
+    if game_state == "gameover" then
+        return
+    end
     timer += 1
     if timer == speed then
         tick()
@@ -72,6 +77,10 @@ function _update()
 end
 
 function _draw()
+    if game_state == "gameover" then
+        centered_print("game over",96,64,7,1)
+        return
+    end
     cls()
     rect(0,0,127,127,5)
 
@@ -403,16 +412,18 @@ function new_player_quad()
         end
     }
     local p3 = player:player3()
-    board[p3.y][p3.x] = next_piece.p3
-
     local p2 = player:player2()
-    board[p2.y][p2.x] = next_piece.p2
-
     local p1 = player:player1()
-    board[p1.y][p1.x] = next_piece.p1
-
     local p0 = player:player0()
-    board[p0.y][p0.x] = next_piece.p0
+
+    if board[p3.y][p3.x] != empty or board[p2.y][p2.x] != empty or board[p1.y][p1.x] != empty or board[p0.y][p0.x] != empty then
+        game_state = "gameover"
+    else
+        board[p3.y][p3.x] = next_piece.p3
+        board[p2.y][p2.x] = next_piece.p2
+        board[p1.y][p1.x] = next_piece.p1
+        board[p0.y][p0.x] = next_piece.p0
+    end
 
     make_next_piece()
 end
@@ -499,6 +510,20 @@ function x_for_next_row(current_y, current_x)
     return current_x-1
 end
 
+-- fancy printing
+function centered_print(text,x,y,col,outline_col)
+    outlined_print(text, x-#text*2, y, col, outline_col)
+end
+
+function outlined_print(text,x,y,col,outline_col)
+    print(text,x-1,y,outline_col)
+    print(text,x+1,y,outline_col)
+    print(text,x,y-1,outline_col)
+    print(text,x,y+1,outline_col)
+
+    print(text,x,y,col)
+end
+
 __gfx__
 00000000007700000088000000aa000000cc00000011000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0000000007007000080080000aaaa0000cccc0000111100000000000000000000000000000000000000000000000000000000000000000000000000000000000
@@ -525,4 +550,3 @@ __music__
 04 02034344
 04 00050706
 04 01020344
-
