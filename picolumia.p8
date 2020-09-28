@@ -21,6 +21,7 @@ local wall = -1
 local number_of_sounds=10
 
 -- board constants
+local board_display_x_offset = 25 -- Used to center the board
 local board_height = 27 -- must be odd for math to work out
 local board_width = 8
 local bottom = 120
@@ -91,16 +92,17 @@ function update_menu()
 end
 
 function _draw()
+    cls()
+    rect(0,0,127,127,5) -- todo remove
+
     if game_state == "gameover" then
-        centered_print("game over",96,64,7,1)
+        centered_print("game over",96,64,7,6)
         return
     elseif game_state == "menu" then
-        cls()
         draw_board()
         draw_menu()
     else
         cls()
-        rect(0,0,127,127,5)
 
         draw_board()
         next_piece:draw()
@@ -108,8 +110,9 @@ function _draw()
 end
 
 function draw_menu()
-    sspr(1,8,121,25,3,45)
-    centered_print("press \x97 to begin", 64, 110, 7)
+    sspr(1,8,121,25,5,45)
+
+    centered_print("press \x97 to begin", 64, 110,7,1)
 end
 
 -- The board is organized with 1,1 as the bottom left corner
@@ -117,7 +120,7 @@ end
 -- the diamond shape is made by setting the out-of-bounds spaces to "wall"
 function draw_board()
     for_all_tiles(function(y,x)
-        local x_loc=x*piece_width
+        local x_loc=x*piece_width + board_display_x_offset
         if is_odd(y) then
             x_loc += piece_width/2
         end
@@ -466,7 +469,7 @@ function make_next_piece()
         p2=p2,
         p3=p3,
         draw=function(self)
-            local x_loc=piece_width*board_width+piece_width
+            local x_loc=piece_width*board_width+piece_width+board_display_x_offset
             local y_loc=bottom-board_height*piece_height
             sspr(p3,0,sprite_size,sprite_size,x_loc,y_loc)
             sspr(p2,0,sprite_size,sprite_size,x_loc+piece_width/2,y_loc+piece_height)
