@@ -2,6 +2,7 @@
 Mixolumia demake for the pico8
 
 # TODO
+- [ ] Hard drop
 - [ ] Screen Shake
 - [ ] Scores
 - [ ] Thunk noise

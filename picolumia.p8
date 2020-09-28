@@ -96,7 +96,7 @@ function _draw()
     rect(0,0,127,127,5) -- todo remove
 
     if game_state == "gameover" then
-        centered_print("game over",96,64,7,6)
+        centered_print("game over",64, 76, 7, 1)
         return
     elseif game_state == "menu" then
         draw_board()
@@ -113,7 +113,7 @@ end
 function draw_menu()
     sspr(1,8,121,25,5,45)
 
-    centered_print("press \x97 to begin", 64, 110,7,1)
+    centered_print("press \x97 to begin", 64, 103,7,1)
 end
 
 -- The board is organized with 1,1 as the bottom left corner
