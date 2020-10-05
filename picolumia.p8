@@ -1,7 +1,8 @@
 pico-8 cartridge // http://www.pico-8.com
 version 29
 __lua__
-
+-- picolumia
+-- by andrew edstrom
 local board
 local player
 local next_piece
@@ -10,6 +11,7 @@ local speed
 local last_direction_moved -- "right" or "left"
 local blocks_clearing
 local game_state -- "playing", "gameover", "menu"
+local cleared
 
 -- piece types
 local white = 8
@@ -32,6 +34,8 @@ local sprite_size = 6
 function _init()
     game_state="menu"
     board=new_board()
+    cleared = 0
+
 end
 
 function start_game()
@@ -101,11 +105,13 @@ function _draw()
     elseif game_state == "menu" then
         draw_board()
         draw_menu()
+        draw_score()
     else
         cls()
 
         draw_board()
         next_piece:draw()
+        draw_score()
     end
 
 end
@@ -114,6 +120,11 @@ function draw_menu()
     sspr(1,8,121,25,5,45)
 
     centered_print("press \x97 to begin", 64, 103,7,1)
+end
+
+function draw_score()
+    print("cleared: " .. cleared,1,1,7)
+    
 end
 
 -- The board is organized with 1,1 as the bottom left corner
@@ -355,6 +366,9 @@ function hit_bottom()
 
             for b in all(blocks_to_delete) do
                 cleared_things = true
+                if board[b.y][b.x] != empty then
+                    cleared+=1
+                end 
                 board[b.y][b.x] = empty
             end
 
@@ -598,3 +612,4 @@ __music__
 04 02034344
 04 00050706
 04 01020344
+
