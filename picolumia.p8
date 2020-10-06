@@ -6,14 +6,18 @@ __lua__
 local board
 local player
 local next_piece
-local timer
+local speed_timer
 local speed
 local last_direction_moved -- "right" or "left"
 local blocks_clearing
 local game_state -- "playing", "gameover", "menu"
+
+-- values to display in hud
 local cleared
 local score
 local level
+local seconds_elapsed
+local seconds_timer
 
 -- piece types
 local white = 8
@@ -42,7 +46,9 @@ function start_game()
     make_next_piece()
     new_player_quad()
     last_direction_moved="right"
-    timer = 0
+    speed_timer = 0
+    seconds_timer = 0
+    seconds_elapsed = 0
     speed = 30
     cleared = 0
     level = 1
@@ -58,36 +64,49 @@ function _update()
 end
 
 function update_game()
-    timer += 1
-    if timer == speed then
-        tick()
-        timer = 0
-    end
+    update_timers()
 
     if blocks_clearing and costatus(blocks_clearing) != 'dead' then
         coresume(blocks_clearing)
     else
-        -- handle input
-        local just_moved=false
-        if btnp(0) then
-            just_moved=move_left()
-        elseif btnp(1) then
-            just_moved=move_right()
-        elseif btn(3) then
-            move_down()
-        end
-        if just_moved then
-            move_sound()
-            timer = 0
-        end
+        handle_input()
+    end
+end
 
-        if btnp(4) then
-            rotate_counter_clockwise()
-            move_sound()
-        elseif btnp(5) then
-            rotate_clockwise()
-            move_sound()
-        end
+function update_timers()
+    speed_timer += 1
+    seconds_timer += 1
+    if speed_timer == speed then
+        --todo seems like we shouldn't be ticking if blocks_clearing is true
+        tick()
+        speed_timer = 0
+    end
+
+    if seconds_timer == 30 then
+        seconds_elapsed += 1
+        seconds_timer = 0
+    end
+end
+
+function handle_input()
+    local just_moved=false
+    if btnp(0) then
+        just_moved=move_left()
+    elseif btnp(1) then
+        just_moved=move_right()
+    elseif btn(3) then
+        move_down()
+    end
+    if just_moved then
+        move_sound()
+    end
+
+    if btnp(4) then
+        rotate_counter_clockwise()
+        move_sound()
+    elseif btnp(5) then
+        rotate_clockwise()
+        move_sound()
     end
 end
 
@@ -124,6 +143,23 @@ function draw_menu()
     centered_print("press \x97 to begin", 64, 103,7,1)
 end
 
+
+-- The board is organized with 1,1 as the bottom left corner
+-- every other row is drawn shifted right by a half position
+-- the diamond shape is made by setting the out-of-bounds spaces to "wall"
+function draw_board()
+    for_all_tiles(function(y,x)
+        local x_loc=x*piece_width + board_display_x_offset
+        if is_odd(y) then
+            x_loc += piece_width/2
+        end
+        local y_loc=bottom-y*piece_height
+        if board[y][x] != wall then
+            sspr(board[y][x],0,sprite_size,sprite_size,x_loc,y_loc)
+        end
+    end)
+end
+
 function draw_hud()
     -- todo just use magic numbers when you run out of tokens
     local right_side_x=piece_width*board_width+piece_width+board_display_x_offset
@@ -131,6 +167,7 @@ function draw_hud()
 
     -- left side
     print("time", board_display_x_offset-9, y_loc, 7)
+    print(display_time(), board_display_x_offset-13, y_loc+8, 7)
 
     print("level", board_display_x_offset-13, y_loc+26,7)
     local level_num_x_pos = board_display_x_offset+3
@@ -147,20 +184,20 @@ function draw_hud()
     print(score, right_side_x, y_loc+34,7)
 end
 
--- The board is organized with 1,1 as the bottom left corner
--- every other row is drawn shifted right by a half position
--- the diamond shape is made by setting the out-of-bounds spaces to "wall"
-function draw_board()
-    for_all_tiles(function(y,x)
-        local x_loc=x*piece_width + board_display_x_offset
-        if is_odd(y) then
-            x_loc += piece_width/2
-        end
-        local y_loc=bottom-y*piece_height
-        if board[y][x] != wall then
-            sspr(board[y][x],0,sprite_size,sprite_size,x_loc,y_loc)
-        end
-    end)
+-- return time elapsed in format mm:ss
+function display_time()
+    local minutes = flr(seconds_elapsed / 60)
+    local seconds_remainder = seconds_elapsed % 60
+    local display_minutes = tostr(minutes)
+    if #display_minutes < 2 then
+        display_minutes = "0" .. display_minutes
+    end
+    local display_seconds = tostr(seconds_remainder)
+    if #display_seconds < 2 then
+        display_seconds = "0" .. display_seconds
+    end
+
+    return display_minutes .. ":" .. display_seconds
 end
 
 function tick()
