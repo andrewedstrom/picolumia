@@ -113,7 +113,7 @@ function _draw()
 
         draw_board()
         next_piece:draw()
-        draw_score()
+        draw_hud()
     end
 
 end
@@ -124,20 +124,27 @@ function draw_menu()
     centered_print("press \x97 to begin", 64, 103,7,1)
 end
 
-function draw_score()
+function draw_hud()
     -- todo just use magic numbers when you run out of tokens
-    local x_loc=piece_width*board_width+piece_width+board_display_x_offset
+    local right_side_x=piece_width*board_width+piece_width+board_display_x_offset
     local y_loc=45
-    print("cleared",x_loc,y_loc,7)
-    print(cleared, x_loc,y_loc+8,7)
-    print("score", x_loc, y_loc+26,7)
-    print(score, x_loc, y_loc+34,7)
-    print("level", board_display_x_offset-13, y_loc,7)
+
+    -- left side
+    print("time", board_display_x_offset-9, y_loc, 7)
+
+    print("level", board_display_x_offset-13, y_loc+26,7)
     local level_num_x_pos = board_display_x_offset+3
     if level > 9 then
-        level_num_x_pos-=4
+        level_num_x_pos -= 4
     end
-    print(level, level_num_x_pos, y_loc+8,7)
+    print(level, level_num_x_pos, y_loc+34,7)
+
+    -- right side
+    print("cleared",right_side_x,y_loc,7)
+    print(cleared, right_side_x,y_loc+8,7)
+
+    print("score", right_side_x, y_loc+26,7)
+    print(score, right_side_x, y_loc+34,7)
 end
 
 -- The board is organized with 1,1 as the bottom left corner
