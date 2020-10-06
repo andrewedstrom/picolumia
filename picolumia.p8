@@ -127,11 +127,17 @@ end
 function draw_score()
     -- todo just use magic numbers when you run out of tokens
     local x_loc=piece_width*board_width+piece_width+board_display_x_offset
-    local y_loc=bottom-board_height*piece_height*5/8
+    local y_loc=45
     print("cleared",x_loc,y_loc,7)
-    print(cleared,x_loc,y_loc+8,7)
-    print("score", x_loc, y_loc+24,7)
-    print(score, x_loc, y_loc+32,7)
+    print(cleared, x_loc,y_loc+8,7)
+    print("score", x_loc, y_loc+26,7)
+    print(score, x_loc, y_loc+34,7)
+    print("level", board_display_x_offset-13, y_loc,7)
+    local level_num_x_pos = board_display_x_offset+3
+    if level > 9 then
+        level_num_x_pos-=4
+    end
+    print(level, level_num_x_pos, y_loc+8,7)
 end
 
 -- The board is organized with 1,1 as the bottom left corner
@@ -313,6 +319,7 @@ function calculate_points_scored(blocks_cleared)
 end
 
 function hit_bottom()
+
     blocks_clearing=cocreate(function()
         function let_pieces_settle()
             --todo do this as a coroutine too
@@ -375,18 +382,18 @@ function hit_bottom()
                 end
             end)
 
-            local blocks_cleared_this_time = 0 --todo this makes cleared_things pointless
+            local cleared_this_iteration = 0 --todo this makes cleared_things pointless
             for b in all(blocks_to_delete) do
                 cleared_things = true
                 if board[b.y][b.x] != empty then
-                    blocks_cleared_this_time+=1
+                    cleared_this_iteration+=1
                 end
                 board[b.y][b.x] = empty
             end
 
             if cleared_things then
-                cleared += blocks_cleared_this_time
-                score += calculate_points_scored(blocks_cleared_this_time, level)
+                cleared += cleared_this_iteration
+                score += calculate_points_scored(cleared_this_iteration, level)
                 if #blocks_to_delete < 4 then
                     small_clear_sound()
                 elseif #blocks_to_delete < 6 then
