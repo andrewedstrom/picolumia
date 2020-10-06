@@ -168,7 +168,6 @@ function tick()
 end
 
 -- Moving blocks
-
 function rotate_clockwise()
     local p0 = player:player0()
     local p1 = player:player1()
@@ -339,7 +338,15 @@ function hit_bottom()
                         if block_can_fall_left(y,x) then
                             move_piece(y, x, y-1, x_for_next_row(y,x))
                             falling=true
-                        elseif block_can_fall_right(y,x) then
+                        end
+                    end
+                end)
+                yield()
+                yield()
+                yield()
+                for_all_tiles(function(y,x)
+                    if board[y][x] != empty then
+                        if block_can_fall_right(y,x) then
                             move_piece(y, x, y-1, x_for_next_row(y,x)+1)
                             falling=true
                         end
