@@ -4,7 +4,6 @@ Mixolumia demake for the pico8
 # TODO
 - [ ] Hard drop
 - [ ] Screen Shake
-- [ ] Scores
 - [ ] Thunk noise
 - [ ] Particles
 - [ ] Speed up
@@ -12,3 +11,4 @@ Mixolumia demake for the pico8
 - [ ] Glow around title
 - [ ] Center the board
 - [ ] Level system
+- [ ] Combo bonus

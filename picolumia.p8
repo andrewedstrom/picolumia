@@ -12,6 +12,8 @@ local last_direction_moved -- "right" or "left"
 local blocks_clearing
 local game_state -- "playing", "gameover", "menu"
 local cleared
+local score
+local level
 
 -- piece types
 local white = 8
@@ -34,8 +36,6 @@ local sprite_size = 6
 function _init()
     game_state="menu"
     board=new_board()
-    cleared = 0
-
 end
 
 function start_game()
@@ -44,6 +44,9 @@ function start_game()
     last_direction_moved="right"
     timer = 0
     speed = 30
+    cleared = 0
+    level = 1
+    score = 0
 end
 
 function _update()
@@ -105,7 +108,6 @@ function _draw()
     elseif game_state == "menu" then
         draw_board()
         draw_menu()
-        draw_score()
     else
         cls()
 
@@ -123,8 +125,13 @@ function draw_menu()
 end
 
 function draw_score()
-    print("cleared: " .. cleared,1,1,7)
-    
+    -- todo just use magic numbers when you run out of tokens
+    local x_loc=piece_width*board_width+piece_width+board_display_x_offset
+    local y_loc=bottom-board_height*piece_height*5/8
+    print("cleared",x_loc,y_loc,7)
+    print(cleared,x_loc,y_loc+8,7)
+    print("score", x_loc, y_loc+24,7)
+    print(score, x_loc, y_loc+32,7)
 end
 
 -- The board is organized with 1,1 as the bottom left corner
@@ -301,6 +308,10 @@ function move_sound()
     sfx(flr(rnd(number_of_sounds+1)))
 end
 
+function calculate_points_scored(blocks_cleared)
+    return level*((blocks_cleared-2)^2)
+end
+
 function hit_bottom()
     blocks_clearing=cocreate(function()
         function let_pieces_settle()
@@ -364,15 +375,18 @@ function hit_bottom()
                 end
             end)
 
+            local blocks_cleared_this_time = 0 --todo this makes cleared_things pointless
             for b in all(blocks_to_delete) do
                 cleared_things = true
                 if board[b.y][b.x] != empty then
-                    cleared+=1
-                end 
+                    blocks_cleared_this_time+=1
+                end
                 board[b.y][b.x] = empty
             end
 
             if cleared_things then
+                cleared += blocks_cleared_this_time
+                score += calculate_points_scored(blocks_cleared_this_time, level)
                 if #blocks_to_delete < 4 then
                     small_clear_sound()
                 elseif #blocks_to_delete < 6 then
@@ -484,7 +498,7 @@ function make_next_piece()
         p2=p2,
         p3=p3,
         draw=function(self)
-            local x_loc=piece_width*board_width+piece_width+board_display_x_offset
+            local x_loc=board_display_x_offset
             local y_loc=bottom-board_height*piece_height
             sspr(p3,0,sprite_size,sprite_size,x_loc,y_loc)
             sspr(p2,0,sprite_size,sprite_size,x_loc+piece_width/2,y_loc+piece_height)
