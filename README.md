@@ -7,8 +7,9 @@ Mixolumia demake for the pico8
 - [ ] Particles
 - [ ] Speed up as you progress
 - [ ] More nice chords
+- [ ] make it really cool to get a big combo
 - [ ] Glow around title
-- [ ] Center the board
-- [ ] Level system
 - [ ] tutorial in-game
 - [ ] Combo bonus
+- [ ] make it possible to win
+- [ ] max score
