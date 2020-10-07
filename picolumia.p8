@@ -10,7 +10,7 @@ local speed_timer
 local speed
 local last_direction_moved -- "right" or "left"
 local blocks_clearing
-local game_state -- "playing", "gameover", "menu"
+local game_state -- "playing", "gameover", "menu", "won"
 local hard_dropping
 
 -- values to display in hud
@@ -50,7 +50,7 @@ function start_game()
     speed_timer = 0
     seconds_timer = 0
     seconds_elapsed = 0
-    speed = 26
+    speed = 27
     cleared = 0
     level = 0
     score = 0
@@ -60,7 +60,7 @@ end
 function _update()
     if game_state == "gameover" or game_state == "menu" then
         update_menu()
-    else
+    elseif game_state == "playing" then
         update_game()
     end
 end
@@ -125,20 +125,20 @@ function _draw()
     cls()
     rect(0,0,127,127,5) -- todo remove
 
-    if game_state == "gameover" then
-        centered_print("game over",64, 76, 7, 1)
-        return
-    elseif game_state == "menu" then
+    if game_state == "menu" then
         draw_board()
         draw_menu()
     else
         cls()
-
         draw_board()
         next_piece:draw()
         draw_hud()
+        if game_state == "gameover" then
+            centered_print("game over", 64, 1, 7, 1)
+        elseif game_state == "won" then
+            centered_print("you win!!!", 64, 1, 7, 1)
+        end
     end
-
 end
 
 function draw_menu()
@@ -463,7 +463,12 @@ function hit_bottom()
         end
 
         level = flr(cleared/30)
-        new_player_quad()
+
+        if level == 15 then
+            game_state = "won"
+        else
+            new_player_quad()
+        end
     end)
 end
 
@@ -533,12 +538,11 @@ function new_player_quad()
 
     if board[p3.y][p3.x] != empty or board[p2.y][p2.x] != empty or board[p1.y][p1.x] != empty or board[p0.y][p0.x] != empty then
         game_state = "gameover"
-    else
-        board[p3.y][p3.x] = next_piece.p3
-        board[p2.y][p2.x] = next_piece.p2
-        board[p1.y][p1.x] = next_piece.p1
-        board[p0.y][p0.x] = next_piece.p0
     end
+    board[p3.y][p3.x] = next_piece.p3
+    board[p2.y][p2.x] = next_piece.p2
+    board[p1.y][p1.x] = next_piece.p1
+    board[p0.y][p0.x] = next_piece.p0
 
     make_next_piece()
 end
