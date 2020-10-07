@@ -50,9 +50,9 @@ function start_game()
     speed_timer = 0
     seconds_timer = 0
     seconds_elapsed = 0
-    speed = 30
+    speed = 26
     cleared = 0
-    level = 1
+    level = 0
     score = 0
     hard_dropping = false
 end
@@ -73,6 +73,10 @@ function update_game()
     elseif hard_dropping then
         move_down()
     else
+        if speed_timer >= (speed - level) then
+            tick()
+            speed_timer = 0
+        end
         handle_input()
     end
 end
@@ -80,11 +84,6 @@ end
 function update_timers()
     speed_timer += 1
     seconds_timer += 1
-    if speed_timer == speed then
-        --todo seems like we shouldn't be ticking if blocks_clearing is true
-        tick()
-        speed_timer = 0
-    end
 
     if seconds_timer == 30 then
         seconds_elapsed += 1
@@ -363,7 +362,7 @@ function move_sound()
 end
 
 function calculate_points_scored(blocks_cleared)
-    return level*((blocks_cleared-2)^2)
+    return (level+1)*((blocks_cleared-2)^2)
 end
 
 function hit_bottom()
@@ -463,6 +462,7 @@ function hit_bottom()
             end
         end
 
+        level = flr(cleared/30)
         new_player_quad()
     end)
 end
