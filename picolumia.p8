@@ -11,6 +11,7 @@ local speed
 local last_direction_moved -- "right" or "left"
 local blocks_clearing
 local game_state -- "playing", "gameover", "menu"
+local hard_dropping
 
 -- values to display in hud
 local cleared
@@ -53,6 +54,7 @@ function start_game()
     cleared = 0
     level = 1
     score = 0
+    hard_dropping = false
 end
 
 function _update()
@@ -68,6 +70,8 @@ function update_game()
 
     if blocks_clearing and costatus(blocks_clearing) != 'dead' then
         coresume(blocks_clearing)
+    elseif hard_dropping then
+        move_down()
     else
         handle_input()
     end
@@ -95,6 +99,7 @@ function handle_input()
     elseif btnp(1) then
         just_moved=move_right()
     elseif btn(3) then
+        hard_dropping=true
         move_down()
     end
     if just_moved then
@@ -362,7 +367,7 @@ function calculate_points_scored(blocks_cleared)
 end
 
 function hit_bottom()
-
+    hard_dropping=false
     blocks_clearing=cocreate(function()
         function let_pieces_settle()
             --todo do this as a coroutine too
@@ -379,8 +384,6 @@ function hit_bottom()
                     end
                 end)
                 yield()
-                yield()
-                yield()
                 for_all_tiles(function(y,x)
                     if board[y][x] != empty then
                         if block_can_fall_right(y,x) then
@@ -390,8 +393,6 @@ function hit_bottom()
                     end
                 end)
 
-                yield()
-                yield()
                 yield()
             end
         end
