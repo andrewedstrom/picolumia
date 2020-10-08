@@ -5,7 +5,6 @@ Mixolumia demake for the pico8
 - [ ] Screen Shake
 - [ ] Thunk noise
 - [ ] Particles
-- [ ] Speed up as you progress
 - [ ] More nice chords
 - [ ] make it really cool to get a big combo
 - [ ] Glow around title

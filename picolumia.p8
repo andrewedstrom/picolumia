@@ -529,8 +529,19 @@ function new_player_quad()
                 x=self.x,
                 y=self.y+2
             }
+        end,
+        is_player_piece=function(y,x)
+            local p3 = player:player3()
+            local p2 = player:player2()
+            local p1 = player:player1()
+            local p0 = player:player0()
+
+            return (x == p0.x or x == p1.x or x == p2.x or x == p3.x) and
+                (y == p0.y or y == p1.y or y == p2.y or y == p3.y)
+
         end
     }
+    -- todo add function to player to multi return all current pieces
     local p3 = player:player3()
     local p2 = player:player2()
     local p1 = player:player1()
