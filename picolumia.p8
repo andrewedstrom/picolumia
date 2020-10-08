@@ -38,9 +38,18 @@ local piece_width = 8
 local piece_height = 4
 local sprite_size = 6
 
+-- set up palette
+function setup_palette()
+    _pal={0,129,136,140,1,5,6,7,8,135,10,3,12,13,133,134}
+    for i,c in pairs(_pal) do
+        pal(i-1,c,1)
+    end
+end
+
 function _init()
     game_state="menu"
     board=new_board()
+    setup_palette()
 end
 
 function start_game()
@@ -68,7 +77,7 @@ end
 function update_game()
     update_timers()
 
-    if blocks_clearing and costatus(blocks_clearing) != 'dead' then
+    if currently_clearing_blocks() then
         coresume(blocks_clearing)
     elseif hard_dropping then
         move_down()
@@ -79,6 +88,10 @@ function update_game()
         end
         handle_input()
     end
+end
+
+function currently_clearing_blocks()
+    return blocks_clearing and costatus(blocks_clearing) != 'dead'
 end
 
 function update_timers()
@@ -152,6 +165,11 @@ end
 -- every other row is drawn shifted right by a half position
 -- the diamond shape is made by setting the out-of-bounds spaces to "wall"
 function draw_board()
+    local shadow
+    if player then
+        shadow = player_shadow()
+    end
+
     for_all_tiles(function(y,x)
         local x_loc=x*piece_width + board_display_x_offset
         if is_odd(y) then
@@ -159,7 +177,21 @@ function draw_board()
         end
         local y_loc=bottom-y*piece_height
         if board[y][x] != wall then
-            sspr(board[y][x],0,sprite_size,sprite_size,x_loc,y_loc)
+            -- change colors for indicator of where piece would fall
+            local sprite = board[y][x]
+
+            if shadow and shadow:is_in_shadow(y,x) and not currently_clearing_blocks() then
+                pal()
+                pal(12, 3)
+                pal(8, 2)
+                pal(7, 6)
+                pal(10, 9)
+                sprite = shadow:get_corresponding_sprite(y,x)
+            end
+
+            sspr(sprite,0,sprite_size,sprite_size,x_loc,y_loc)
+            pal()
+            setup_palette()
         end
     end)
 end
@@ -233,6 +265,59 @@ function rotate_counter_clockwise()
     board[p1.y][p1.x] = board[p3.y][p3.x]
     board[p3.y][p3.x] = board[p2.y][p2.x]
     board[p2.y][p2.x] = tmp
+end
+
+function player_shadow()
+    local s0 = player:player0()
+    local s1 = player:player1()
+    local s2 = player:player2()
+    local s3 = player:player3()
+
+    local next_y=s0.y-2
+    local next_x=s0.x
+
+    while next_y > 0 and board[next_y][next_x] == empty do
+        s0={y=next_y, x=next_x}
+        s1.y=next_y+1
+        s2.y=next_y+1
+        s3={y=next_y+2, x=next_x}
+
+        next_y=s0.y-2
+        next_x=s0.x
+    end
+
+    return {
+        s0=s0,
+        s1=s1,
+        s2=s2,
+        s3=s3,
+        is_in_shadow=function(self,y,x)
+            s0 = self.s0
+            s1 = self.s1
+            s2 = self.s2
+            s3 = self.s3
+            return (y == s0.y and x == s0.x) or (y == s1.y and x == s1.x) or (y == s2.y and x == s2.x) or (y == s3.y and x == s3.x)
+        end,
+        get_corresponding_sprite=function(self,y,x)
+            local s0 = self.s0
+            local s1 = self.s1
+            local s2 = self.s2
+            local s3 = self.s3
+            local p0 = player:player0()
+            local p1 = player:player1()
+            local p2 = player:player2()
+            local p3 = player:player3()
+
+            if y == s0.y and x == s0.x then
+                return board[p0.y][p0.x]
+            elseif y == s1.y and x == s1.x then
+                return board[p1.y][p1.x]
+            elseif y == s2.y and x == s2.x then
+                return board[p2.y][p2.x]
+            end
+            return board[p3.y][p3.x]
+        end
+    }
 end
 
 function move_down(next_y,next_x)
@@ -530,15 +615,14 @@ function new_player_quad()
                 y=self.y+2
             }
         end,
-        is_player_piece=function(y,x)
-            local p3 = player:player3()
-            local p2 = player:player2()
-            local p1 = player:player1()
-            local p0 = player:player0()
+        is_player_piece=function(self, y, x)
+            local p3 = self:player3()
+            local p2 = self:player2()
+            local p1 = self:player1()
+            local p0 = self:player0()
 
             return (x == p0.x or x == p1.x or x == p2.x or x == p3.x) and
                 (y == p0.y or y == p1.y or y == p2.y or y == p3.y)
-
         end
     }
     -- todo add function to player to multi return all current pieces
