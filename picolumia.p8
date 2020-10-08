@@ -180,7 +180,7 @@ function draw_board()
             -- change colors for indicator of where piece would fall
             local sprite = board[y][x]
 
-            if shadow and shadow:is_in_shadow(y,x) and not currently_clearing_blocks() then
+            if sprite == empty and shadow and shadow:is_in_shadow(y,x) and not currently_clearing_blocks() then
                 pal()
                 pal(12, 3)
                 pal(8, 2)
