@@ -6,7 +6,7 @@ __lua__
 
 local board
 local player
-local next_piece
+local next_quad
 local speed_timer
 local speed
 local last_direction_moved -- "right" or "left"
@@ -36,7 +36,7 @@ local wall = -1
 
 -- board constants
 local board_outline_color = 13
-local board_left = 21 -- Used to center the board
+local board_left = 8 -- Used to center the board
 local board_height = 27 -- must be odd for math to work out
 local board_width = 8
 local bottom = 117
@@ -162,8 +162,6 @@ function _draw()
         draw_board()
         draw_menu()
     else
-        next_piece:draw()
-
         draw_hud()
         if drawing_combo_text and costatus(drawing_combo_text) != dead then
             coresume(drawing_combo_text)
@@ -174,9 +172,9 @@ function _draw()
     end
 
     if game_state == "gameover" then
-        centered_print("game over", 64, 1, 7, 1)
+        centered_print("game over", 64, 4, 7, 1)
     elseif game_state == "won" then
-        centered_print("you win!!!", 64, 1, 7, 1)
+        centered_print("you win!!!", 64, 4, 7, 1)
     end
 end
 
@@ -245,27 +243,28 @@ function draw_board_outline()
 end
 
 function draw_hud()
-    -- todo just use magic numbers when you run out of tokens
-    local right_side_x=board_left+76
-    local y_loc=43
+    local right_side_x=board_left+84
+    local y_loc=8
 
-    -- left side
-    print("time", board_left-13, y_loc, 7)
-    print(display_time(), board_left-17, y_loc+8, 7)
+    color(7)
+    print("time",right_side_x, y_loc)
+    print(display_time(), right_side_x, y_loc+8)
 
-    print("level", board_left-17, y_loc+26,7)
-    local level_num_x_pos = board_left-1
-    if level > 9 then
-        level_num_x_pos -= 4
-    end
-    print(level, level_num_x_pos, y_loc+34,7)
+    print("level", right_side_x, y_loc+24)
+    print(level, right_side_x, y_loc+32)
 
-    -- right side
-    print("cleared",right_side_x,y_loc,7)
-    print(cleared, right_side_x,y_loc+8,7)
+    print("cleared",right_side_x,y_loc+48)
+    print(cleared, right_side_x,y_loc+56)
 
-    print("score", right_side_x, y_loc+26,7)
-    print(score, right_side_x, y_loc+34,7)
+    print("score", right_side_x, y_loc+72)
+    print(score, right_side_x, y_loc+80)
+
+    local next_quad_y = y_loc+96
+    local next_quad_x = right_side_x +piece_width/2
+    sspr(next_quad.p3,0,sprite_size,sprite_size,next_quad_x,next_quad_y)
+    sspr(next_quad.p2,0,sprite_size,sprite_size,next_quad_x+piece_width/2,next_quad_y+piece_height)
+    sspr(next_quad.p1,0,sprite_size,sprite_size,next_quad_x-piece_width/2,next_quad_y+piece_height)
+    sspr(next_quad.p0,0,sprite_size,sprite_size,next_quad_x,next_quad_y+piece_height*2)
 end
 
 -- return time elapsed in format mm:ss
@@ -566,15 +565,15 @@ function find_blocks_to_delete()
 end
 
 function draw_combo_text()
-    local x_loc=board_left+65
-    local y_loc=17
+    local x_loc=board_left-5
+    local y_loc=8
 
     local i
-    for i=1,35 do
+    for i=1,25 do
         if i % 5 == 0 then
             y_loc -= 1
         end
-        print(combo_size .. "x combo",x_loc,y_loc,11)
+        print(combo_size.."x combo!",x_loc,y_loc,11)
         yield()
     end
 end
@@ -716,10 +715,10 @@ function new_player_quad()
     if board[p3.y][p3.x] != empty or board[p2.y][p2.x] != empty or board[p1.y][p1.x] != empty or board[p0.y][p0.x] != empty then
         game_state = "gameover"
     end
-    board[p3.y][p3.x] = next_piece.p3
-    board[p2.y][p2.x] = next_piece.p2
-    board[p1.y][p1.x] = next_piece.p1
-    board[p0.y][p0.x] = next_piece.p0
+    board[p3.y][p3.x] = next_quad.p3
+    board[p2.y][p2.x] = next_quad.p2
+    board[p1.y][p1.x] = next_quad.p1
+    board[p0.y][p0.x] = next_quad.p0
 
     make_next_quad()
 end
@@ -732,19 +731,11 @@ function make_next_quad()
     while p0 == p1 and p1 == p2 and p2 == p3 do
         p3=random_block()
     end
-    next_piece={
+    next_quad={
         p0=p0,
         p1=p1,
         p2=p2,
-        p3=p3,
-        draw=function(self)
-            local x_loc=board_left+board_width*piece_width+2*piece_width
-            local y_loc=bottom-4*piece_height
-            sspr(self.p3,0,sprite_size,sprite_size,x_loc,y_loc)
-            sspr(self.p2,0,sprite_size,sprite_size,x_loc+piece_width/2,y_loc+piece_height)
-            sspr(self.p1,0,sprite_size,sprite_size,x_loc-piece_width/2,y_loc+piece_height)
-            sspr(self.p0,0,sprite_size,sprite_size,x_loc,y_loc+piece_height*2)
-        end
+        p3=p3
     }
 end
 
