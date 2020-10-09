@@ -717,7 +717,7 @@ function random_piece()
 end
 
 function new_board()
-    grid = {}
+    local grid = {}
     local y
     local x
     for y = 1, board_height do
