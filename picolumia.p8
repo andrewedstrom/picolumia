@@ -588,6 +588,7 @@ function hit_bottom()
 
         yield_n_times(3)
         local cleared_things=true -- todo this is a lie at this moment
+        local scored_this_turn=0
         while cleared_things do
             cleared_things=false
 
@@ -605,7 +606,7 @@ function hit_bottom()
                 combo_size += 1
                 local combo_multiplier = mid(1,combo_size,4)
                 cleared += cleared_this_iteration
-                score += combo_size*calculate_points_scored(cleared_this_iteration, level)
+                scored_this_turn += combo_size*calculate_points_scored(cleared_this_iteration, level)
                 if #blocks_to_delete < 4 then
                     small_clear_sound()
                 elseif #blocks_to_delete < 6 then
@@ -624,6 +625,8 @@ function hit_bottom()
         if combo_size > 1 then
             drawing_combo_text=cocreate(draw_combo_text)
         end
+
+        score += scored_this_turn
         level = flr(cleared/30)
         if level == 15 then
             game_state = "won"
