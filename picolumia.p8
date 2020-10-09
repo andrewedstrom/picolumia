@@ -14,6 +14,7 @@ local blocks_clearing
 local game_state -- "playing", "gameover", "menu", "won"
 local hard_dropping
 local number_of_sounds=10
+local combo_multiplier
 
 -- values to display in hud
 local cleared
@@ -70,6 +71,7 @@ function start_game()
     seconds_elapsed = 0
     speed = 27
     cleared = 0
+    combo_multiplier = 0
     level = 0
     score = 0
     x_shift = 0
@@ -489,78 +491,85 @@ function calculate_points_scored(blocks_cleared)
     return (level+1)*((blocks_cleared-2)^2)
 end
 
+function yield_n_times(n)
+    local i
+    for i=1,n do
+        yield()
+    end
+end
+
+function let_pieces_settle()
+    --todo do this as a coroutine too
+    local falling=true
+    while falling do
+        falling=false
+        -- todo make this happen over multiple frames
+        for_all_tiles(function(y,x)
+            if board[y][x] != empty then
+                if block_can_fall_left(y,x) then
+                    move_piece(y, x, y-1, x_for_next_row(y,x))
+                    falling=true
+                end
+            end
+        end)
+        if falling then
+            yield_n_times(2)
+        end
+        for_all_tiles(function(y,x)
+            if board[y][x] != empty then
+                if block_can_fall_right(y,x) then
+                    move_piece(y, x, y-1, x_for_next_row(y,x)+1)
+                    falling=true
+                end
+            end
+        end)
+        yield_n_times(2)
+    end
+end
+
+function find_blocks_to_delete()
+    local blocks_to_delete ={} -- y,x pairs
+    for_all_tiles(function(y,x)
+        local current_piece = board[y][x]
+        if current_piece != empty then
+            local one_row_up_x = x_for_next_row(y, x)
+
+            -- square!
+            if current_piece == board[y+1][one_row_up_x] and current_piece == board[y+1][one_row_up_x+1] and current_piece == board[y+2][x] then
+                add(blocks_to_delete,{y=y,x=x})
+                add(blocks_to_delete,{y=y+1,x=one_row_up_x})
+                add(blocks_to_delete,{y=y+1,x=one_row_up_x+1})
+                add(blocks_to_delete,{y=y+2,x=x})
+            end
+            -- line going left!
+            if current_piece == board[y+1][one_row_up_x] and current_piece == board[y+2][x-1] then
+                add(blocks_to_delete,{y=y,x=x})
+                add(blocks_to_delete,{y=y+1,x=one_row_up_x})
+                add(blocks_to_delete,{y=y+2,x=x-1})
+            end
+            -- line going right!
+            if current_piece == board[y+1][one_row_up_x+1] and current_piece == board[y+2][x+1] then
+                add(blocks_to_delete,{y=y,x=x})
+                add(blocks_to_delete,{y=y+1,x=one_row_up_x+1})
+                add(blocks_to_delete,{y=y+2,x=x+1})
+            end
+        end
+    end)
+    return blocks_to_delete
+end
+
 function hit_bottom()
     hard_dropping=false
     y_shift-=shimmy_coefficient/2
     blocks_clearing=cocreate(function()
-        function let_pieces_settle()
-            --todo do this as a coroutine too
-            local falling=true
-            while falling do
-                falling=false
-                -- todo make this happen over multiple frames
-                for_all_tiles(function(y,x)
-                    if board[y][x] != empty then
-                        if block_can_fall_left(y,x) then
-                            move_piece(y, x, y-1, x_for_next_row(y,x))
-                            falling=true
-                        end
-                    end
-                end)
-                if falling then
-                    yield()
-                    yield()
-                end
-                for_all_tiles(function(y,x)
-                    if board[y][x] != empty then
-                        if block_can_fall_right(y,x) then
-                            move_piece(y, x, y-1, x_for_next_row(y,x)+1)
-                            falling=true
-                        end
-                    end
-                end)
-                yield()
-                yield()
-            end
-        end
-
         let_pieces_settle()
 
-        yield()
-        yield()
-        yield()
+        yield_n_times(3)
         local cleared_things=true -- todo this is a lie at this moment
         while cleared_things do
             cleared_things=false
 
-            local blocks_to_delete ={} -- y,x pairs
-            for_all_tiles(function(y,x)
-                local current_piece = board[y][x]
-                if current_piece != empty then
-                    local one_row_up_x = x_for_next_row(y, x)
-
-                    -- square!
-                    if current_piece == board[y+1][one_row_up_x] and current_piece == board[y+1][one_row_up_x+1] and current_piece == board[y+2][x] then
-                        add(blocks_to_delete,{y=y,x=x})
-                        add(blocks_to_delete,{y=y+1,x=one_row_up_x})
-                        add(blocks_to_delete,{y=y+1,x=one_row_up_x+1})
-                        add(blocks_to_delete,{y=y+2,x=x})
-                    end
-                    -- line going left!
-                    if current_piece == board[y+1][one_row_up_x] and current_piece == board[y+2][x-1] then
-                        add(blocks_to_delete,{y=y,x=x})
-                        add(blocks_to_delete,{y=y+1,x=one_row_up_x})
-                        add(blocks_to_delete,{y=y+2,x=x-1})
-                    end
-                    -- line going right!
-                    if current_piece == board[y+1][one_row_up_x+1] and current_piece == board[y+2][x+1] then
-                        add(blocks_to_delete,{y=y,x=x})
-                        add(blocks_to_delete,{y=y+1,x=one_row_up_x+1})
-                        add(blocks_to_delete,{y=y+2,x=x+1})
-                    end
-                end
-            end)
-
+            local blocks_to_delete = find_blocks_to_delete()
             local cleared_this_iteration = 0 --todo this makes cleared_things pointless
             for b in all(blocks_to_delete) do
                 cleared_things = true
@@ -582,9 +591,7 @@ function hit_bottom()
                 end
             end
 
-            yield()
-            yield()
-            yield()
+            yield_n_times(3)
             if cleared_things then
                 let_pieces_settle()
             end
