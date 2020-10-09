@@ -10,11 +10,14 @@ local next_piece
 local speed_timer
 local speed
 local last_direction_moved -- "right" or "left"
-local blocks_clearing
 local game_state -- "playing", "gameover", "menu", "won"
 local hard_dropping
 local number_of_sounds=10
-local combo_multiplier
+local combo_size
+
+-- coroutines
+local drawing_combo_text
+local blocks_clearing
 
 -- values to display in hud
 local cleared
@@ -50,7 +53,7 @@ local minimum_shimmy_threshold=.8
 
 -- set up palette
 function setup_palette()
-    _pal={0,129,136,140,1,5,6,7,8,135,10,3,12,13,133,134}
+    _pal={0,129,136,140,1,5,6,7,8,135,10,131,12,13,133,134}
     for i,c in pairs(_pal) do
         pal(i-1,c,1)
     end
@@ -71,7 +74,7 @@ function start_game()
     seconds_elapsed = 0
     speed = 27
     cleared = 0
-    combo_multiplier = 0
+    combo_size = 0
     level = 0
     score = 0
     x_shift = 0
@@ -162,6 +165,10 @@ function _draw()
         next_piece:draw()
 
         draw_hud()
+        if drawing_combo_text and costatus(drawing_combo_text) != dead then
+            coresume(drawing_combo_text)
+        end
+
         doshake()
         draw_board()
     end
@@ -528,7 +535,7 @@ function let_pieces_settle()
 end
 
 function find_blocks_to_delete()
-    local blocks_to_delete ={} -- y,x pairs
+    local blocks_to_delete = {} -- y,x pairs
     for_all_tiles(function(y,x)
         local current_piece = board[y][x]
         if current_piece != empty then
@@ -558,8 +565,23 @@ function find_blocks_to_delete()
     return blocks_to_delete
 end
 
+function draw_combo_text()
+    local x_loc=board_left+65
+    local y_loc=17
+
+    local i
+    for i=1,35 do
+        if i % 5 == 0 then
+            y_loc -= 1
+        end
+        print(combo_size .. "x combo",x_loc,y_loc,11)
+        yield()
+    end
+end
+
 function hit_bottom()
     hard_dropping=false
+    combo_size = 0
     y_shift-=shimmy_coefficient/2
     blocks_clearing=cocreate(function()
         let_pieces_settle()
@@ -580,8 +602,10 @@ function hit_bottom()
             end
 
             if cleared_things then
+                combo_size += 1
+                local combo_multiplier = mid(1,combo_size,4)
                 cleared += cleared_this_iteration
-                score += calculate_points_scored(cleared_this_iteration, level)
+                score += combo_size*calculate_points_scored(cleared_this_iteration, level)
                 if #blocks_to_delete < 4 then
                     small_clear_sound()
                 elseif #blocks_to_delete < 6 then
@@ -597,8 +621,10 @@ function hit_bottom()
             end
         end
 
+        if combo_size > 1 then
+            drawing_combo_text=cocreate(draw_combo_text)
+        end
         level = flr(cleared/30)
-
         if level == 15 then
             game_state = "won"
         else
