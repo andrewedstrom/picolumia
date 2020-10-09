@@ -30,13 +30,20 @@ local wall = -1
 local number_of_sounds=10
 
 -- board constants
-local board_display_x_offset = 25 -- Used to center the board
+local board_display_x_offset = 23 -- Used to center the board
 local board_height = 27 -- must be odd for math to work out
 local board_width = 8
 local bottom = 120
 local piece_width = 8
 local piece_height = 4
 local sprite_size = 6
+
+-- juice
+local x_shift
+local y_shift
+local shimmy_coefficient=1.6
+local shimmy_degredation_rate=.9
+local minimum_shimmy_threshold=1
 
 -- set up palette
 function setup_palette()
@@ -63,6 +70,8 @@ function start_game()
     cleared = 0
     level = 0
     score = 0
+    x_shift = 0
+    y_shift = 0
     hard_dropping = false
 end
 
@@ -108,11 +117,14 @@ function handle_input()
     local just_moved=false
     if btnp(0) then
         just_moved=move_left()
+        x_shift+=shimmy_coefficient
     elseif btnp(1) then
         just_moved=move_right()
+        x_shift-=shimmy_coefficient
     elseif btn(3) then
         hard_dropping=true
         move_down()
+        y_shift-=shimmy_coefficient
     end
     if just_moved then
         move_sound()
@@ -136,21 +148,24 @@ end
 
 function _draw()
     cls()
+    camera(0,0)
     rect(0,0,127,127,5) -- todo remove
 
     if game_state == "menu" then
         draw_board()
         draw_menu()
     else
-        cls()
-        draw_board()
         next_piece:draw()
+
         draw_hud()
-        if game_state == "gameover" then
-            centered_print("game over", 64, 1, 7, 1)
-        elseif game_state == "won" then
-            centered_print("you win!!!", 64, 1, 7, 1)
-        end
+        doshake()
+        draw_board()
+    end
+
+    if game_state == "gameover" then
+        centered_print("game over", 64, 1, 7, 1)
+    elseif game_state == "won" then
+        centered_print("you win!!!", 64, 1, 7, 1)
     end
 end
 
@@ -159,7 +174,6 @@ function draw_menu()
 
     centered_print("press \x97 to begin", 64, 103,7,1)
 end
-
 
 -- The board is organized with 1,1 as the bottom left corner
 -- every other row is drawn shifted right by a half position
@@ -198,7 +212,7 @@ end
 
 function draw_hud()
     -- todo just use magic numbers when you run out of tokens
-    local right_side_x=101
+    local right_side_x=99
     local y_loc=45
 
     -- left side
@@ -452,6 +466,7 @@ end
 
 function hit_bottom()
     hard_dropping=false
+    y_shift-=shimmy_coefficient/2
     blocks_clearing=cocreate(function()
         function let_pieces_settle()
             --todo do this as a coroutine too
@@ -467,7 +482,10 @@ function hit_bottom()
                         end
                     end
                 end)
-                yield()
+                if falling then
+                    yield()
+                    yield()
+                end
                 for_all_tiles(function(y,x)
                     if board[y][x] != empty then
                         if block_can_fall_right(y,x) then
@@ -476,7 +494,7 @@ function hit_bottom()
                         end
                     end
                 end)
-
+                yield()
                 yield()
             end
         end
@@ -736,6 +754,20 @@ function outlined_print(text,x,y,col,outline_col)
     print(text,x,y+1,outline_col)
 
     print(text,x,y,col)
+end
+
+-- game feel thiccness
+function doshake()
+    camera(x_shift,y_shift)
+    x_shift *= shimmy_degredation_rate
+    y_shift *= shimmy_degredation_rate
+
+    if abs(x_shift) < minimum_shimmy_threshold then
+        x_shift = 0
+    end
+    if abs(y_shift) < minimum_shimmy_threshold then
+        y_shift = 0
+    end
 end
 
 __gfx__
