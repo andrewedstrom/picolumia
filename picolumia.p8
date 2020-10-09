@@ -33,7 +33,7 @@ local number_of_sounds=10
 local board_display_x_offset = 23 -- Used to center the board
 local board_height = 27 -- must be odd for math to work out
 local board_width = 8
-local bottom = 120
+local bottom = 117
 local piece_width = 8
 local piece_height = 4
 local sprite_size = 6
@@ -211,9 +211,9 @@ function draw_board()
 
     -- draw outline of board
     color(4)
-    local center_point_x=61
-    local bottom_corner_y=92
-    local upper_corner_y=41
+    local center_point_x=board_display_x_offset+38
+    local bottom_corner_y=bottom-28
+    local upper_corner_y=bottom-79
     local bottom_point_y=bottom+5
 
     -- left side
@@ -233,7 +233,7 @@ end
 function draw_hud()
     -- todo just use magic numbers when you run out of tokens
     local right_side_x=99
-    local y_loc=45
+    local y_loc=43
 
     -- left side
     print("time", board_display_x_offset-13, y_loc, 7)
