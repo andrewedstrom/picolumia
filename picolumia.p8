@@ -674,12 +674,12 @@ function make_next_piece()
         p2=p2,
         p3=p3,
         draw=function(self)
-            local x_loc=board_display_x_offset
-            local y_loc=bottom-board_height*piece_height
-            sspr(p3,0,sprite_size,sprite_size,x_loc,y_loc)
-            sspr(p2,0,sprite_size,sprite_size,x_loc+piece_width/2,y_loc+piece_height)
-            sspr(p1,0,sprite_size,sprite_size,x_loc-piece_width/2,y_loc+piece_height)
-            sspr(p0,0,sprite_size,sprite_size,x_loc,y_loc+piece_height*2)
+            local x_loc=board_display_x_offset-4
+            local y_loc=bottom-4*piece_height
+            sspr(self.p3,0,sprite_size,sprite_size,x_loc,y_loc)
+            sspr(self.p2,0,sprite_size,sprite_size,x_loc+piece_width/2,y_loc+piece_height)
+            sspr(self.p1,0,sprite_size,sprite_size,x_loc-piece_width/2,y_loc+piece_height)
+            sspr(self.p0,0,sprite_size,sprite_size,x_loc,y_loc+piece_height*2)
         end
     }
 end
