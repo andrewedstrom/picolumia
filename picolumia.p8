@@ -172,9 +172,9 @@ function _draw()
     end
 
     if game_state == "gameover" then
-        centered_print("game over", 64, 4, 7, 1)
+        centered_print("game over", board_left+38, bottom-79, 7, 1)
     elseif game_state == "won" then
-        centered_print("you win!!!", 64, 4, 7, 1)
+        centered_print("you win!!!", board_left+38, bottom-79, 7, 1)
     end
 end
 
@@ -251,7 +251,7 @@ function draw_hud()
     print(display_time(), right_side_x, y_loc+8)
 
     print("level", right_side_x, y_loc+24)
-    print(level, right_side_x, y_loc+32)
+    print(level.."/15", right_side_x, y_loc+32)
 
     print("cleared",right_side_x,y_loc+48)
     print(cleared, right_side_x,y_loc+56)
@@ -894,4 +894,3 @@ __music__
 04 0e111244
 04 10110d44
 04 0f161744
-
