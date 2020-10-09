@@ -3,6 +3,7 @@ version 29
 __lua__
 -- picolumia
 -- by andrew edstrom
+
 local board
 local player
 local next_piece
@@ -12,6 +13,7 @@ local last_direction_moved -- "right" or "left"
 local blocks_clearing
 local game_state -- "playing", "gameover", "menu", "won"
 local hard_dropping
+local number_of_sounds=10
 
 -- values to display in hud
 local cleared
@@ -27,9 +29,9 @@ local yellow_block = 24
 local blue_block = 32
 local empty = 40
 local wall = -1
-local number_of_sounds=10
 
 -- board constants
+local board_outline_color = 13
 local board_left = 21 -- Used to center the board
 local board_height = 27 -- must be odd for math to work out
 local board_width = 8
@@ -60,7 +62,7 @@ function _init()
 end
 
 function start_game()
-    make_next_piece()
+    make_next_quad()
     new_player_quad()
     last_direction_moved="right"
     speed_timer = 0
@@ -181,7 +183,7 @@ end
 function draw_board()
     local shadow
     if player then
-        shadow = player_shadow()
+        shadow = player_quad_shadow()
     end
 
     for_all_tiles(function(y,x)
@@ -195,6 +197,7 @@ function draw_board()
             local sprite = board[y][x]
 
             if sprite == empty and shadow and shadow:is_in_shadow(y,x) and not currently_clearing_blocks() then
+                -- switch block colors to block shadow colors
                 pal()
                 pal(12, 3)
                 pal(8, 2)
@@ -208,9 +211,12 @@ function draw_board()
             setup_palette()
         end
     end)
+    draw_board_outline()
+end
 
+function draw_board_outline()
     -- draw outline of board
-    color(4)
+    color(board_outline_color)
     local center_point_x=board_left+38
     local bottom_corner_y=bottom-28
     local upper_corner_y=bottom-79
@@ -227,7 +233,6 @@ function draw_board()
     line(center_point_x+1, bottom-board_height*piece_height-4, right_side_line_x, upper_corner_y)
     line(right_side_line_x, bottom_corner_y)
     line(center_point_x+1, bottom_point_y)
-
 end
 
 function draw_hud()
@@ -301,7 +306,7 @@ function rotate_counter_clockwise()
     board[p2.y][p2.x] = tmp
 end
 
-function player_shadow()
+function player_quad_shadow()
     local s0 = player:player0()
     local s1 = player:player1()
     local s2 = player:player2()
@@ -677,16 +682,16 @@ function new_player_quad()
     board[p1.y][p1.x] = next_piece.p1
     board[p0.y][p0.x] = next_piece.p0
 
-    make_next_piece()
+    make_next_quad()
 end
 
-function make_next_piece()
-    local p0=random_piece()
-    local p1=random_piece()
-    local p2=random_piece()
-    local p3=random_piece()
+function make_next_quad()
+    local p0=random_block()
+    local p1=random_block()
+    local p2=random_block()
+    local p3=random_block()
     while p0 == p1 and p1 == p2 and p2 == p3 do
-        p3=random_piece()
+        p3=random_block()
     end
     next_piece={
         p0=p0,
@@ -704,7 +709,7 @@ function make_next_piece()
     }
 end
 
-function random_piece()
+function random_block()
     local val = flr(rnd(4))
     if val == 0 then
         return white_block
