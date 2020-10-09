@@ -198,15 +198,15 @@ end
 
 function draw_hud()
     -- todo just use magic numbers when you run out of tokens
-    local right_side_x=piece_width*board_width+piece_width+board_display_x_offset
+    local right_side_x=101
     local y_loc=45
 
     -- left side
-    print("time", board_display_x_offset-9, y_loc, 7)
-    print(display_time(), board_display_x_offset-13, y_loc+8, 7)
+    print("time", board_display_x_offset-13, y_loc, 7)
+    print(display_time(), board_display_x_offset-17, y_loc+8, 7)
 
-    print("level", board_display_x_offset-13, y_loc+26,7)
-    local level_num_x_pos = board_display_x_offset+3
+    print("level", board_display_x_offset-17, y_loc+26,7)
+    local level_num_x_pos = board_display_x_offset-1
     if level > 9 then
         level_num_x_pos -= 4
     end
