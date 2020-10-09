@@ -20,17 +20,17 @@ local level
 local seconds_elapsed
 local seconds_timer
 
--- piece types
-local white = 8
-local red = 16
-local yellow = 24
-local blue = 32
+-- block types
+local white_block = 8
+local red_block = 16
+local yellow_block = 24
+local blue_block = 32
 local empty = 40
 local wall = -1
 local number_of_sounds=10
 
 -- board constants
-local board_display_x_offset = 21 -- Used to center the board
+local board_left = 21 -- Used to center the board
 local board_height = 27 -- must be odd for math to work out
 local board_width = 8
 local bottom = 117
@@ -185,7 +185,7 @@ function draw_board()
     end
 
     for_all_tiles(function(y,x)
-        local x_loc=x*piece_width + board_display_x_offset
+        local x_loc=x*piece_width + board_left
         if is_odd(y) then
             x_loc += piece_width/2
         end
@@ -211,19 +211,19 @@ function draw_board()
 
     -- draw outline of board
     color(4)
-    local center_point_x=board_display_x_offset+38
+    local center_point_x=board_left+38
     local bottom_corner_y=bottom-28
     local upper_corner_y=bottom-79
     local bottom_point_y=bottom+5
 
     -- left side
-    local left_side_line_x=board_display_x_offset+5
+    local left_side_line_x=board_left+5
     line(center_point_x, bottom_point_y, left_side_line_x, bottom_corner_y)
     line(left_side_line_x, upper_corner_y)
     line(center_point_x, bottom-board_height*piece_height-4)
 
     -- right side
-    local right_side_line_x=board_display_x_offset+board_width*piece_width+8
+    local right_side_line_x=board_left+board_width*piece_width+8
     line(center_point_x+1, bottom-board_height*piece_height-4, right_side_line_x, upper_corner_y)
     line(right_side_line_x, bottom_corner_y)
     line(center_point_x+1, bottom_point_y)
@@ -232,15 +232,15 @@ end
 
 function draw_hud()
     -- todo just use magic numbers when you run out of tokens
-    local right_side_x=board_display_x_offset+76
+    local right_side_x=board_left+76
     local y_loc=43
 
     -- left side
-    print("time", board_display_x_offset-13, y_loc, 7)
-    print(display_time(), board_display_x_offset-17, y_loc+8, 7)
+    print("time", board_left-13, y_loc, 7)
+    print(display_time(), board_left-17, y_loc+8, 7)
 
-    print("level", board_display_x_offset-17, y_loc+26,7)
-    local level_num_x_pos = board_display_x_offset-1
+    print("level", board_left-17, y_loc+26,7)
+    local level_num_x_pos = board_left-1
     if level > 9 then
         level_num_x_pos -= 4
     end
@@ -694,7 +694,7 @@ function make_next_piece()
         p2=p2,
         p3=p3,
         draw=function(self)
-            local x_loc=board_display_x_offset+board_width*piece_width+2*piece_width
+            local x_loc=board_left+board_width*piece_width+2*piece_width
             local y_loc=bottom-4*piece_height
             sspr(self.p3,0,sprite_size,sprite_size,x_loc,y_loc)
             sspr(self.p2,0,sprite_size,sprite_size,x_loc+piece_width/2,y_loc+piece_height)
@@ -707,13 +707,13 @@ end
 function random_piece()
     local val = flr(rnd(4))
     if val == 0 then
-        return white
+        return white_block
     elseif val == 1 then
-        return red
+        return red_block
     elseif val == 2 then
-        return yellow
+        return yellow_block
     end
-    return blue
+    return blue_block
 end
 
 function new_board()
