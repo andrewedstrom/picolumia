@@ -208,6 +208,22 @@ function draw_board()
             setup_palette()
         end
     end)
+
+    -- draw outline of board
+    color(4)
+    -- left side
+    local left_side_line_x=board_display_x_offset+5
+    line(61, bottom+5, left_side_line_x, 92)
+    line(left_side_line_x, 41)
+    line(61, bottom-board_height*piece_height-4)
+
+    -- right side
+    local right_side_line_x=board_display_x_offset+board_width*piece_width+8
+    line(62, bottom-board_height*piece_height-4, right_side_line_x, 41)
+    line(right_side_line_x, 92)
+    line(62, bottom+5)
+
+
 end
 
 function draw_hud()
@@ -816,3 +832,4 @@ __music__
 04 02034344
 04 00050706
 04 01020344
+
