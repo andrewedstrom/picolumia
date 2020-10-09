@@ -211,18 +211,22 @@ function draw_board()
 
     -- draw outline of board
     color(4)
+    local center_point_x=61
+    local bottom_corner_y=92
+    local upper_corner_y=41
+    local bottom_point_y=bottom+5
+
     -- left side
     local left_side_line_x=board_display_x_offset+5
-    line(61, bottom+5, left_side_line_x, 92)
-    line(left_side_line_x, 41)
-    line(61, bottom-board_height*piece_height-4)
+    line(center_point_x, bottom_point_y, left_side_line_x, bottom_corner_y)
+    line(left_side_line_x, upper_corner_y)
+    line(center_point_x, bottom-board_height*piece_height-4)
 
     -- right side
     local right_side_line_x=board_display_x_offset+board_width*piece_width+8
-    line(62, bottom-board_height*piece_height-4, right_side_line_x, 41)
-    line(right_side_line_x, 92)
-    line(62, bottom+5)
-
+    line(center_point_x+1, bottom-board_height*piece_height-4, right_side_line_x, upper_corner_y)
+    line(right_side_line_x, bottom_corner_y)
+    line(center_point_x+1, bottom_point_y)
 
 end
 
@@ -832,4 +836,3 @@ __music__
 04 02034344
 04 00050706
 04 01020344
-
