@@ -38,12 +38,12 @@ local piece_width = 8
 local piece_height = 4
 local sprite_size = 6
 
--- juice
+-- game feel thiccness
 local x_shift
 local y_shift
-local shimmy_coefficient=1.6
-local shimmy_degredation_rate=.9
-local minimum_shimmy_threshold=1
+local shimmy_coefficient=1.2
+local shimmy_degredation_rate=.93
+local minimum_shimmy_threshold=.8
 
 -- set up palette
 function setup_palette()
@@ -117,10 +117,10 @@ function handle_input()
     local just_moved=false
     if btnp(0) then
         just_moved=move_left()
-        x_shift+=shimmy_coefficient
+        x_shift=shimmy_coefficient
     elseif btnp(1) then
         just_moved=move_right()
-        x_shift-=shimmy_coefficient
+        x_shift=-shimmy_coefficient
     elseif btn(3) then
         hard_dropping=true
         move_down()
@@ -816,4 +816,3 @@ __music__
 04 02034344
 04 00050706
 04 01020344
-
