@@ -30,7 +30,7 @@ local wall = -1
 local number_of_sounds=10
 
 -- board constants
-local board_display_x_offset = 23 -- Used to center the board
+local board_display_x_offset = 21 -- Used to center the board
 local board_height = 27 -- must be odd for math to work out
 local board_width = 8
 local bottom = 117
@@ -41,7 +41,7 @@ local sprite_size = 6
 -- game feel thiccness
 local x_shift
 local y_shift
-local shimmy_coefficient=1.2
+local shimmy_coefficient=1.4
 local shimmy_degredation_rate=.93
 local minimum_shimmy_threshold=.8
 
@@ -148,7 +148,7 @@ end
 
 function _draw()
     cls()
-    camera(0,0)
+    camera()
     rect(0,0,127,127,5) -- todo remove
 
     if game_state == "menu" then
@@ -232,7 +232,7 @@ end
 
 function draw_hud()
     -- todo just use magic numbers when you run out of tokens
-    local right_side_x=99
+    local right_side_x=board_display_x_offset+76
     local y_loc=43
 
     -- left side
@@ -694,7 +694,7 @@ function make_next_piece()
         p2=p2,
         p3=p3,
         draw=function(self)
-            local x_loc=board_display_x_offset-4
+            local x_loc=board_display_x_offset+board_width*piece_width+2*piece_width
             local y_loc=bottom-4*piece_height
             sspr(self.p3,0,sprite_size,sprite_size,x_loc,y_loc)
             sspr(self.p2,0,sprite_size,sprite_size,x_loc+piece_width/2,y_loc+piece_height)
@@ -778,7 +778,12 @@ end
 
 -- game feel thiccness
 function doshake()
-    camera(x_shift,y_shift)
+    local x_pos = flr(x_shift)
+    if x_shift < 0 then
+        x_pos = ceil(x_shift)
+    end
+
+    camera(x_pos,y_shift)
     x_shift *= shimmy_degredation_rate
     y_shift *= shimmy_degredation_rate
 
