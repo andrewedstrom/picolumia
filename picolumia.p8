@@ -200,7 +200,6 @@ function draw_board()
         end
         local y_loc=bottom-y*piece_height
         if board[y][x] != wall then
-            -- change colors for indicator of where piece would fall
             local sprite = board[y][x]
 
             if sprite == empty and shadow and shadow:is_in_shadow(y,x) and not currently_clearing_blocks() then
@@ -218,6 +217,10 @@ function draw_board()
             setup_palette()
         end
     end)
+
+    if shadow and shadow:would_slide() then
+        shadow:draw_slide_indicator_arrow()
+    end
     draw_board_outline()
 end
 
@@ -363,6 +366,20 @@ function player_quad_shadow()
                 return board[p2.y][p2.x]
             end
             return board[p3.y][p3.x]
+        end,
+        would_slide=function(self)
+        end,
+        draw_slide_indicator_arrow=function(self)
+            -- if last_direction_moved == "right" then
+            --     next_action = move_right
+            -- else
+            --     next_action = move_left
+            -- end
+            -- if can_move_left() then
+
+            -- end
+            -- if can_move_right() then
+            -- end
         end
     }
 end
@@ -388,15 +405,15 @@ function move_down(next_y,next_x)
         hit_bottom()
     else
         local next_action = hit_bottom
-        if can_move_left() and can_move_right() then
+        if can_move_left(p0,p1) and can_move_right(p0,p2) then
             if last_direction_moved == "right" then
                 next_action = move_right
             else
                 next_action = move_left
             end
-        elseif can_move_left() then
+        elseif can_move_left(p0,p1) then
             next_action = move_left
-        elseif can_move_right() then
+        elseif can_move_right(p0,p2) then
             next_action = move_right
         end
         next_action()
@@ -413,7 +430,7 @@ function move_left()
     local next_x=x_for_next_row(p0.y, p0.x)
     local one_row_up_x = x_for_next_row(p0.y+1,next_x)
 
-    if can_move_left() then
+    if can_move_left(p0,p1) then
         move_piece(p0.y,p0.x,next_y,next_x)
         move_piece(p1.y,p1.x,next_y+1,one_row_up_x)
         move_piece(p2.y,p2.x,next_y+1,one_row_up_x+1)
@@ -423,15 +440,14 @@ function move_left()
         player.y = next_y
         last_direction_moved = "left"
         return true
-    elseif not can_move_right() then
+    elseif not can_move_right(p0,p2) then
         hit_bottom()
         return false
     end
 end
 
-function can_move_left()
-    local p1 = player:player1()
-    return player.y-1 > 0 and block_can_fall_left(player.y,player.x) and block_can_fall_left(p1.y,p1.x)
+function can_move_left(p0, p1)
+    return p0.y-1 > 0 and block_can_fall_left(p0.y,p0.x) and block_can_fall_left(p1.y,p1.x)
 end
 
 function block_can_fall_left(old_y,old_x)
@@ -454,7 +470,7 @@ function move_right() --todo combine into one method with move_left
     local next_x=x_for_next_row(p0.y, p0.x)+1
     local one_row_up_x = x_for_next_row(p0.y+1,next_x)
 
-    if can_move_right() then
+    if can_move_right(p0,p2) then
         move_piece(p0.y,p0.x,next_y,next_x)
         move_piece(p1.y,p1.x,next_y+1,one_row_up_x)
         move_piece(p2.y,p2.x,next_y+1,one_row_up_x+1)
@@ -464,15 +480,14 @@ function move_right() --todo combine into one method with move_left
         player.y = next_y
         last_direction_moved = "right"
         return true
-    elseif not can_move_left() then
+    elseif not can_move_left(p0, p1) then
         hit_bottom()
         return false
     end
 end
 
-function can_move_right()
-    local p2 = player:player2()
-    return player.y-1 > 0 and block_can_fall_right(player.y,player.x) and block_can_fall_right(p2.y,p2.x)
+function can_move_right(p0,p2)
+    return p0.y-1 > 0 and block_can_fall_right(p0.y,p0.x) and block_can_fall_right(p2.y,p2.x)
 end
 
 function block_can_fall_right(old_y,old_x)
@@ -832,11 +847,11 @@ end
 
 __gfx__
 00000000007700000088000000aa000000cc00000011000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-0000000007007000080080000aaaa0000cccc0000111100000000000000000000000000000000000000000000000000000000000000000000000000000000000
-007007007000070080880800aaaaaa00cc00cc001111110000000000000000000000000000000000000000000000000000000000000000000000000000000000
-000770007000070080880800aaaaaa00cc00cc001111110000000000000000000000000000000000000000000000000000000000000000000000000000000000
-0007700007007000080080000aaaa0000cccc0000111100000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00700700007700000088000000aa000000cc00000011000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0000000007007000080080000aaaa0000cccc0000111100006000000000000000000000000000000000000000000000000000000000000000000000000000000
+007007007000070080880800aaaaaa00cc00cc001111110000600000000000000000000000000000000000000000000000000000000000000000000000000000
+000770007000070080880800aaaaaa00cc00cc001111110000060600000000000000000000000000000000000000000000000000000000000000000000000000
+0007700007007000080080000aaaa0000cccc0000111100000006600000000000000000000000000000000000000000000000000000000000000000000000000
+00700700007700000088000000aa000000cc00000011000000066600000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 07700000000007000000000000070000000000077000000000000700000000000700000000700000700000000000000007000000700000000070000000000000
