@@ -848,14 +848,15 @@ end
 function print_in_box(message,x,y)
     local pico8_letter_width = 4
     local message_width_px = #message*pico8_letter_width
-    local box_left = x-message_width_px/2-pico8_letter_width+1
-    local box_right = x+message_width_px/2
+    local box_left = x-message_width_px/2-pico8_letter_width
+    local box_right = x+message_width_px/2+1
     local box_top = y-pico8_letter_width
     local box_bottom = y+pico8_letter_width*2
     local box_color = 6
 
-    rectfill(box_left,box_top+1,box_right,box_bottom-1,box_color)
-    rectfill(box_left+1,box_top,box_right-1,box_bottom,box_color)
+    rectfill(box_left+2,box_top,box_right-2,box_bottom,box_color)
+    rectfill(box_left+1,box_top+1,box_right-1,box_bottom-1,box_color)
+    rectfill(box_left,box_top+2,box_right,box_bottom-2,box_color)
 
     centered_print(message, x, y, 7, 0)
 end
