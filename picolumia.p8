@@ -50,6 +50,9 @@ local y_shift
 local shimmy_coefficient=1.4
 local shimmy_degredation_rate=.93
 local minimum_shimmy_threshold=.8
+local fade_speed=0.05
+local current_fade_perc=0
+local loading=false
 
 -- set up palette
 function setup_palette()
@@ -61,11 +64,12 @@ end
 
 function _init()
     game_state="menu"
-    setup_palette()
 end
 
 function start_game()
     board=new_board()
+    game_state = "playing"
+    setup_palette()
     make_next_quad()
     new_player_quad()
     last_direction_moved="right"
@@ -147,18 +151,17 @@ function handle_input()
 end
 
 function update_menu()
-    if btn(4) or btn(5) then
-        game_state = "playing"
-        music(7)
-
+    if loading and current_fade_perc > 1.5 then
         start_game()
+    elseif btn(4) or btn(5) then
+        music(7)
+        loading=true
     end
 end
 
 function _draw()
     cls()
     camera()
-    rect(0,0,127,127,5) -- todo remove
 
     if game_state == "menu" then
         draw_menu()
@@ -192,10 +195,14 @@ function draw_menu()
     pal()
 
     -- real title
-    setup_palette()
     sspr(1,8,121,25,5,45)
 
     centered_print("press \x97 to begin", 64, 103,7,1)
+
+    if loading then
+        fadepal(current_fade_perc)
+        current_fade_perc+=fade_speed
+    end
 end
 
 -- The board is organized with 1,1 as the bottom left corner
@@ -909,6 +916,71 @@ function doshake()
         y_shift = 0
     end
 end
+
+
+function fadepal(_perc)
+    -- this function sets the
+    -- color palette so everything
+    -- you draw afterwards will
+    -- appear darker
+    -- it accepts a number from
+    -- 0 means normal
+    -- 1 is completely black
+    -- this function has been
+    -- adapted from the jelpi.p8
+    -- demo
+
+    -- first we take our argument
+    -- and turn it into a
+    -- percentage number (0-100)
+    -- also making sure its not
+    -- out of bounds
+    local p=flr(mid(0,_perc,1)*100)
+
+    -- these are helper variables
+    local kmax,col,dpal,j,k
+
+    -- this is a table to do the
+    -- palette shifiting. it tells
+    -- what number changes into
+    -- what when it gets darker
+    -- so number
+    -- 15 becomes 14
+    -- 14 becomes 13
+    -- 13 becomes 1
+    -- 12 becomes 3
+    -- etc...
+    dpal={0,1,1, 2,1,13,6,
+             4,4,9,3, 13,1,13,14}
+
+    -- now we go through all colors
+    for j=1,15 do
+     --grab the current color
+     col = j
+
+     --now calculate how many
+     --times we want to fade the
+     --color.
+     --this is a messy formula
+     --and not exact science.
+     --but basically when kmax
+     --reaches 5 every color gets
+     --turned black.
+     kmax=(p+(j*1.46))/22
+
+     --now we send the color
+     --through our table kmax
+     --times to derive the final
+     --color
+     for k=1,kmax do
+      col=dpal[col]
+     end
+
+     --finally, we change the
+     --palette
+     pal(j,col,1)
+    end
+   end
 
 __gfx__
 00000000007700000088000000aa000000cc00000011000000000000000000000000000000000000000000000000000000000000000000000000000000000000
