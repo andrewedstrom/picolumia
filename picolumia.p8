@@ -149,6 +149,8 @@ end
 function update_menu()
     if btn(4) or btn(5) then
         game_state = "playing"
+        music(7)
+
         start_game()
     end
 end
@@ -180,6 +182,16 @@ function _draw()
 end
 
 function draw_menu()
+    -- halo
+    pal(7,1)
+    sspr(1,8,121,25,4,45)
+    sspr(1,8,121,25,5,44)
+    sspr(1,8,121,25,6,45)
+    sspr(1,8,121,25,5,46)
+    pal()
+
+    -- real title
+    setup_palette()
     sspr(1,8,121,25,5,45)
 
     centered_print("press \x97 to begin", 64, 103,7,1)
