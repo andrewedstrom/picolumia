@@ -172,9 +172,9 @@ function _draw()
     end
 
     if game_state == "gameover" then
-        centered_print("game over", board_left+38, bottom-79, 7, 1)
+        print_in_box("game over", board_left+40, 60)
     elseif game_state == "won" then
-        centered_print("you win!!!", board_left+38, bottom-79, 7, 1)
+        print_in_box("you win!!!", board_left+40, 60)
     end
 end
 
@@ -845,6 +845,21 @@ function x_for_next_row(current_y, current_x)
 end
 
 -- fancy printing
+function print_in_box(message,x,y)
+    local pico8_letter_width = 4
+    local message_width_px = #message*pico8_letter_width
+    local box_left = x-message_width_px/2-pico8_letter_width+1
+    local box_right = x+message_width_px/2
+    local box_top = y-pico8_letter_width
+    local box_bottom = y+pico8_letter_width*2
+    local box_color = 6
+
+    rectfill(box_left,box_top+1,box_right,box_bottom-1,box_color)
+    rectfill(box_left+1,box_top,box_right-1,box_bottom,box_color)
+
+    centered_print(message, x, y, 7, 0)
+end
+
 function centered_print(text,x,y,col,outline_col)
     outlined_print(text, x-#text*2, y, col, outline_col)
 end
