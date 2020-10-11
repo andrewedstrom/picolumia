@@ -153,6 +153,7 @@ end
 function update_menu()
     if loading and current_fade_perc > 1.5 then
         start_game()
+        loading=false
     elseif btn(4) or btn(5) then
         music(7)
         loading=true
