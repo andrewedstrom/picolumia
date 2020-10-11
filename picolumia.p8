@@ -61,11 +61,11 @@ end
 
 function _init()
     game_state="menu"
-    board=new_board()
     setup_palette()
 end
 
 function start_game()
+    board=new_board()
     make_next_quad()
     new_player_quad()
     last_direction_moved="right"
@@ -83,7 +83,7 @@ function start_game()
 end
 
 function _update()
-    if game_state == "menu" then
+    if game_state == "menu" or game_state == "gameover" then
         update_menu()
     elseif game_state == "playing" then
         update_game()
@@ -159,7 +159,6 @@ function _draw()
     rect(0,0,127,127,5) -- todo remove
 
     if game_state == "menu" then
-        draw_board()
         draw_menu()
     else
         draw_hud()
@@ -171,10 +170,12 @@ function _draw()
         draw_board()
     end
 
+    local board_center = board_left+40
     if game_state == "gameover" then
-        print_in_box("game over", board_left+40, 60)
+        print_in_box("game over",board_center, 44)
+        print_in_box("press \x97 to try again ",board_center, 99)
     elseif game_state == "won" then
-        print_in_box("you win!!!", board_left+40, 60)
+        print_in_box("you win!!!",board_center, 44)
     end
 end
 
@@ -575,7 +576,9 @@ function let_pieces_settle()
                 end
             end
         end)
-        yield_n_times(2)
+        if falling then
+            yield_n_times(2)
+        end
     end
 end
 
@@ -854,11 +857,11 @@ function print_in_box(message,x,y)
     local box_bottom = y+pico8_letter_width*2
     local box_color = 6
 
-    rectfill(box_left+2, box_top, box_right-2, box_bottom, box_color)
     rectfill(box_left+1, box_top+1, box_right-1, box_bottom-1, box_color)
     rectfill(box_left, box_top+2, box_right, box_bottom-2, box_color)
 
-    centered_print(message, x, y, 7, 0)
+    print(message,x-message_width_px/2,y,1)
+
 end
 
 function centered_print(text,x,y,col,outline_col)
