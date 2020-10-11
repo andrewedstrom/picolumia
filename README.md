@@ -2,12 +2,8 @@
 Mixolumia demake for the pico8
 
 # TODO
-- [ ] Thunk noise
 - [ ] Particles
 - [ ] More nice chords
-- [ ] make it really cool to get a big combo
-- [ ] Glow around title
 - [ ] tutorial in-game
-- [ ] Combo bonus
-- [ ] max score
 - [ ] toggle to turn off screenshake
+- [ ] Start game sound
