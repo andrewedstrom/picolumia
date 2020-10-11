@@ -83,7 +83,7 @@ function start_game()
 end
 
 function _update()
-    if game_state == "menu" or game_state == "gameover" then
+    if game_state == "menu" or game_state == "gameover" or game_state == "won" then
         update_menu()
     elseif game_state == "playing" then
         update_game()
