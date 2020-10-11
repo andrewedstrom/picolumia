@@ -83,7 +83,7 @@ function start_game()
 end
 
 function _update()
-    if game_state == "gameover" or game_state == "menu" then
+    if game_state == "menu" then
         update_menu()
     elseif game_state == "playing" then
         update_game()
@@ -613,13 +613,14 @@ end
 function draw_combo_text()
     local x_loc=board_left-5
     local y_loc=8
+    local message = combo_size.."x combo!"
 
     local i
-    for i=1,25 do
+    for i=1,20 do
         if i % 5 == 0 then
             y_loc -= 1
         end
-        print(combo_size.."x combo!",x_loc,y_loc,11)
+        print(message,x_loc,y_loc,11)
         yield()
     end
 end
@@ -940,4 +941,3 @@ __music__
 04 0e111244
 04 10110d44
 04 0f161744
-
