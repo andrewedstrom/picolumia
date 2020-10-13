@@ -57,8 +57,6 @@ local fade_speed=0.05
 local current_fade_perc=0
 local loading=false
 
-#include juice.lua
-
 -- set up palette
 function setup_palette()
     _pal={0,129,136,140,1,5,6,7,8,135,10,131,12,13,133,134}
@@ -831,36 +829,6 @@ function x_for_next_row(current_y, current_x)
     return current_x-1
 end
 
--- fancy printing
-function print_in_box(message,x,y)
-    local pico8_letter_width = 4
-    local message_width_px = #message*pico8_letter_width
-    local box_left = x-message_width_px/2-pico8_letter_width
-    local box_right = x+message_width_px/2+2
-    local box_top = y-pico8_letter_width
-    local box_bottom = y+pico8_letter_width*2
-    local box_color = 6
-
-    rectfill(box_left+1, box_top+1, box_right-1, box_bottom-1, box_color)
-    rectfill(box_left, box_top+2, box_right, box_bottom-2, box_color)
-
-    print(message,x-message_width_px/2,y,1)
-
-end
-
-function centered_print(text,x,y,col,outline_col)
-    outlined_print(text, x-#text*2, y, col, outline_col)
-end
-
-function outlined_print(text,x,y,col,outline_col)
-    print(text,x-1,y,outline_col)
-    print(text,x+1,y,outline_col)
-    print(text,x,y-1,outline_col)
-    print(text,x,y+1,outline_col)
-
-    print(text,x,y,col)
-end
-
 -- configuration options
 function turn_on_shadow()
     display_shadow=true
@@ -872,7 +840,9 @@ function turn_off_shadow()
     menuitem(1, "show shadow", turn_on_shadow)
 end
 
+#include fancy-printing.lua
 #include update.lua
+#include juice.lua
 
 __gfx__
 00000000007700000088000000aa000000cc00000011000000000000000000000000000000000000000000000000000000000000000000000000000000000000
