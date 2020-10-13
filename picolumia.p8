@@ -4,8 +4,6 @@ __lua__
 -- picolumia
 -- by andrew edstrom
 
-#include juice.lua
-
 local board
 local player
 local next_quad
@@ -58,6 +56,8 @@ local minimum_shimmy_threshold=.8
 local fade_speed=0.05
 local current_fade_perc=0
 local loading=false
+
+#include juice.lua
 
 -- set up palette
 function setup_palette()
@@ -178,7 +178,7 @@ function _draw()
             coresume(drawing_combo_text)
         end
 
-        x_shift, y_shift = doshake(x_shift,y_shift, shimmy_degredation_rate, minimum_shimmy_threshold)
+        doshake()
         draw_board()
     end
 

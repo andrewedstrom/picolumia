@@ -1,5 +1,5 @@
 -- game feel thiccness
-function doshake(x_shift,y_shift, shimmy_degredation_rate, minimum_shimmy_threshold)
+function doshake()
     local x_pos = flr(x_shift)
     if x_shift < 0 then
         x_pos = ceil(x_shift)
@@ -15,7 +15,6 @@ function doshake(x_shift,y_shift, shimmy_degredation_rate, minimum_shimmy_thresh
     if abs(y_shift) < minimum_shimmy_threshold then
         y_shift = 0
     end
-    return x_shift, y_shift
 end
 
 
