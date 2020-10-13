@@ -15,6 +15,9 @@ local hard_dropping
 local number_of_sounds=10
 local combo_size
 
+-- player-chosen settings
+local display_shadow
+
 -- coroutines
 local drawing_combo_text
 local blocks_clearing
@@ -64,6 +67,7 @@ end
 
 function _init()
     game_state="menu"
+    turn_on_shadow()
 end
 
 function start_game()
@@ -220,7 +224,7 @@ function draw_board()
         if board[y][x] != wall then
             local sprite = board[y][x]
 
-            if sprite == empty and shadow and shadow:is_in_shadow(y,x) and not currently_clearing_blocks() then
+            if sprite == empty and display_shadow and shadow and shadow:is_in_shadow(y,x) and not currently_clearing_blocks() then
                 -- switch block colors to block shadow colors
                 pal()
                 pal(12, 3)
@@ -237,7 +241,7 @@ function draw_board()
         end
     end)
 
-    if shadow then
+    if display_shadow and shadow then
         shadow:draw_slide_indicator_arrow()
     end
     draw_board_outline()
@@ -343,98 +347,6 @@ function rotate_counter_clockwise()
     board[p1.y][p1.x] = board[p3.y][p3.x]
     board[p3.y][p3.x] = board[p2.y][p2.x]
     board[p2.y][p2.x] = tmp
-end
-
-function player_quad_shadow()
-    local s0 = player:player0()
-    local s1 = player:player1()
-    local s2 = player:player2()
-    local s3 = player:player3()
-
-    local next_y=s0.y-2
-    local next_x=s0.x
-
-    while next_y > 0 and board[next_y][next_x] == empty do
-        s0={y=next_y, x=next_x}
-        s1.y=next_y+1
-        s2.y=next_y+1
-        s3={y=next_y+2, x=next_x}
-
-        next_y=s0.y-2
-        next_x=s0.x
-    end
-
-    return {
-        s0=s0,
-        s1=s1,
-        s2=s2,
-        s3=s3,
-        is_in_shadow=function(self,y,x)
-            s0 = self.s0
-            s1 = self.s1
-            s2 = self.s2
-            s3 = self.s3
-            return (y == s0.y and x == s0.x) or (y == s1.y and x == s1.x) or (y == s2.y and x == s2.x) or (y == s3.y and x == s3.x)
-        end,
-        get_corresponding_sprite=function(self,y,x)
-            local s0 = self.s0
-            local s1 = self.s1
-            local s2 = self.s2
-            local s3 = self.s3
-            local p0 = player:player0()
-            local p1 = player:player1()
-            local p2 = player:player2()
-            local p3 = player:player3()
-
-            if y == s0.y and x == s0.x then
-                return board[p0.y][p0.x]
-            elseif y == s1.y and x == s1.x then
-                return board[p1.y][p1.x]
-            elseif y == s2.y and x == s2.x then
-                return board[p2.y][p2.x]
-            end
-            return board[p3.y][p3.x]
-        end,
-        draw_slide_indicator_arrow=function(self)
-            if currently_clearing_blocks() then
-                return
-            end
-
-            local s0 = self.s0
-            local s1 = self.s1
-            local s2 = self.s2
-
-            local next_x=x_for_next_row(s0.y, s0.x)
-            local next_y=s0.y-1
-            local arrow_sprite=6
-
-            local right = can_move_right(s0, s2)
-            local left = can_move_left(s0, s1)
-
-            -- todo this logic is duplicated somewhere else, could dedupe to save tokens
-            if left and right then
-                if last_direction_moved == "right" then
-                    -- if they're moving right, they would slide right
-                    left=false
-                else
-                    -- and vice versa
-                    right=false
-                end
-            end
-
-            if right then
-                -- get screen position to draw arrow
-                local y_pos,x_pos=get_screen_position_for_block(next_y,next_x+1)
-                spr(arrow_sprite,x_pos+2,y_pos-2)
-            end
-
-            if left then
-                -- get screen position to draw arrow
-                local y_pos,x_pos=get_screen_position_for_block(next_y,next_x)
-                spr(arrow_sprite,x_pos-3,y_pos-2,1,1,true,false)
-            end
-        end
-    }
 end
 
 function move_down(next_y,next_x)
@@ -795,6 +707,98 @@ function new_player_quad()
     make_next_quad()
 end
 
+function player_quad_shadow()
+    local s0 = player:player0()
+    local s1 = player:player1()
+    local s2 = player:player2()
+    local s3 = player:player3()
+
+    local next_y=s0.y-2
+    local next_x=s0.x
+
+    while next_y > 0 and board[next_y][next_x] == empty do
+        s0={y=next_y, x=next_x}
+        s1.y=next_y+1
+        s2.y=next_y+1
+        s3={y=next_y+2, x=next_x}
+
+        next_y=s0.y-2
+        next_x=s0.x
+    end
+
+    return {
+        s0=s0,
+        s1=s1,
+        s2=s2,
+        s3=s3,
+        is_in_shadow=function(self,y,x)
+            s0 = self.s0
+            s1 = self.s1
+            s2 = self.s2
+            s3 = self.s3
+            return (y == s0.y and x == s0.x) or (y == s1.y and x == s1.x) or (y == s2.y and x == s2.x) or (y == s3.y and x == s3.x)
+        end,
+        get_corresponding_sprite=function(self,y,x)
+            local s0 = self.s0
+            local s1 = self.s1
+            local s2 = self.s2
+            local s3 = self.s3
+            local p0 = player:player0()
+            local p1 = player:player1()
+            local p2 = player:player2()
+            local p3 = player:player3()
+
+            if y == s0.y and x == s0.x then
+                return board[p0.y][p0.x]
+            elseif y == s1.y and x == s1.x then
+                return board[p1.y][p1.x]
+            elseif y == s2.y and x == s2.x then
+                return board[p2.y][p2.x]
+            end
+            return board[p3.y][p3.x]
+        end,
+        draw_slide_indicator_arrow=function(self)
+            if currently_clearing_blocks() then
+                return
+            end
+
+            local s0 = self.s0
+            local s1 = self.s1
+            local s2 = self.s2
+
+            local next_x=x_for_next_row(s0.y, s0.x)
+            local next_y=s0.y-1
+            local arrow_sprite=6
+
+            local right = can_move_right(s0, s2)
+            local left = can_move_left(s0, s1)
+
+            -- todo this logic is duplicated somewhere else, could dedupe to save tokens
+            if left and right then
+                if last_direction_moved == "right" then
+                    -- if they're moving right, they would slide right
+                    left=false
+                else
+                    -- and vice versa
+                    right=false
+                end
+            end
+
+            if right then
+                -- get screen position to draw arrow
+                local y_pos,x_pos=get_screen_position_for_block(next_y,next_x+1)
+                spr(arrow_sprite,x_pos+2,y_pos-2)
+            end
+
+            if left then
+                -- get screen position to draw arrow
+                local y_pos,x_pos=get_screen_position_for_block(next_y,next_x)
+                spr(arrow_sprite,x_pos-3,y_pos-2,1,1,true,false)
+            end
+        end
+    }
+end
+
 function make_next_quad()
     local p0=random_block()
     local p1=random_block()
@@ -952,36 +956,47 @@ function fadepal(_perc)
     -- 12 becomes 3
     -- etc...
     dpal={0,1,1, 2,1,13,6,
-             4,4,9,3, 13,1,13,14}
+                4,4,9,3, 13,1,13,14}
 
     -- now we go through all colors
     for j=1,15 do
-     --grab the current color
-     col = j
+        --grab the current color
+        col = j
 
-     --now calculate how many
-     --times we want to fade the
-     --color.
-     --this is a messy formula
-     --and not exact science.
-     --but basically when kmax
-     --reaches 5 every color gets
-     --turned black.
-     kmax=(p+(j*1.46))/22
+        --now calculate how many
+        --times we want to fade the
+        --color.
+        --this is a messy formula
+        --and not exact science.
+        --but basically when kmax
+        --reaches 5 every color gets
+        --turned black.
+        kmax=(p+(j*1.46))/22
 
-     --now we send the color
-     --through our table kmax
-     --times to derive the final
-     --color
-     for k=1,kmax do
-      col=dpal[col]
-     end
+        --now we send the color
+        --through our table kmax
+        --times to derive the final
+        --color
+        for k=1,kmax do
+        col=dpal[col]
+        end
 
-     --finally, we change the
-     --palette
-     pal(j,col,1)
+        --finally, we change the
+        --palette
+        pal(j,col,1)
     end
-   end
+end
+
+-- configuration options
+function turn_on_shadow()
+    display_shadow=true
+    menuitem(1, "hide shadow", turn_off_shadow)
+end
+
+function turn_off_shadow()
+    display_shadow=false
+    menuitem(1, "show shadow", turn_on_shadow)
+end
 
 __gfx__
 00000000007700000088000000aa000000cc00000011000000000000000000000000000000000000000000000000000000000000000000000000000000000000
