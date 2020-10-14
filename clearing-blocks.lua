@@ -15,7 +15,7 @@ function let_pieces_settle()
     while falling do
         falling=false
         -- todo make this happen over multiple frames
-        for_all_tiles(function(y,x)
+        for_all_tiles(function(y, x)
             if board[y][x] != empty then
                 if block_can_fall_left(y,x) then
                     move_piece(y, x, y-1, x_for_next_row(y,x))
@@ -26,7 +26,7 @@ function let_pieces_settle()
         if falling then
             yield_n_times(2)
         end
-        for_all_tiles(function(y,x)
+        for_all_tiles(function(y, x)
             if board[y][x] != empty then
                 if block_can_fall_right(y,x) then
                     move_piece(y, x, y-1, x_for_next_row(y,x)+1)
