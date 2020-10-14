@@ -4,11 +4,9 @@ function doshake()
     if x_shift < 0 then
         x_pos = ceil(x_shift)
     end
-
     camera(x_pos,y_shift)
     x_shift *= shimmy_degredation_rate
     y_shift *= shimmy_degredation_rate
-
     if abs(x_shift) < minimum_shimmy_threshold then
         x_shift = 0
     end
@@ -16,7 +14,6 @@ function doshake()
         y_shift = 0
     end
 end
-
 
 function fadepal(_perc)
     -- this function sets the
@@ -35,10 +32,10 @@ function fadepal(_perc)
     -- percentage number (0-100)
     -- also making sure its not
     -- out of bounds
-    local p=flr(mid(0,_perc,1)*100)
+    local p = flr(mid(0, _perc, 1) * 100)
 
     -- these are helper variables
-    local kmax,col,dpal,j,k
+    local kmax, col, dpal, j, k
 
     -- this is a table to do the
     -- palette shifiting. it tells
@@ -50,34 +47,31 @@ function fadepal(_perc)
     -- 13 becomes 1
     -- 12 becomes 3
     -- etc...
-    dpal={0,1,1, 2,1,13,6,
-                4,4,9,3, 13,1,13,14}
+    dpal = {0, 1, 1, 2, 1, 13, 6, 4, 4, 9, 3, 13, 1, 13, 14}
 
     -- now we go through all colors
-    for j=1,15 do
-        --grab the current color
+    for j = 1, 15 do
+        -- grab the current color
         col = j
 
-        --now calculate how many
-        --times we want to fade the
-        --color.
-        --this is a messy formula
-        --and not exact science.
-        --but basically when kmax
-        --reaches 5 every color gets
-        --turned black.
-        kmax=(p+(j*1.46))/22
+        -- now calculate how many
+        -- times we want to fade the
+        -- color.
+        -- this is a messy formula
+        -- and not exact science.
+        -- but basically when kmax
+        -- reaches 5 every color gets
+        -- turned black.
+        kmax = (p + (j * 1.46)) / 22
 
-        --now we send the color
-        --through our table kmax
-        --times to derive the final
-        --color
-        for k=1,kmax do
-        col=dpal[col]
-        end
+        -- now we send the color
+        -- through our table kmax
+        -- times to derive the final
+        -- color
+        for k = 1, kmax do col = dpal[col] end
 
-        --finally, we change the
-        --palette
-        pal(j,col,1)
+        -- finally, we change the
+        -- palette
+        pal(j, col, 1)
     end
 end
