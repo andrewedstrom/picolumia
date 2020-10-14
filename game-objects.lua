@@ -166,3 +166,50 @@ function make_next_quad()
         p3=p3
     }
 end
+
+function random_block()
+    local val = flr(rnd(4))
+    if val == 0 then
+        return white_block
+    elseif val == 1 then
+        return red_block
+    elseif val == 2 then
+        return yellow_block
+    end
+    return blue_block
+end
+
+function new_board()
+    local grid = {}
+    local y
+    local x
+    for y = 1, board_height do
+        grid[y] = {}
+
+        for x = 1, board_width do
+            local piece = empty
+
+            if wall_here(y, x) then
+                piece = wall
+            end
+
+            grid[y][x] = piece
+        end
+    end
+    return grid
+end
+
+function wall_here(y,x)
+    -- TODO should still be cleaned up more
+    return (row_at_beginning_or_end(y, 1) and x != 4) or
+        (row_at_beginning_or_end(y, 2) and (x < 4 or 5 < x)) or
+        (row_at_beginning_or_end(y, 3) and (x < 3 or 5 < x)) or
+        (row_at_beginning_or_end(y, 4) and (x < 3 or 6 < x)) or
+        (row_at_beginning_or_end(y, 5) and (x < 2 or 6 < x)) or
+        (row_at_beginning_or_end(y, 6) and (x < 2 or 7 < x)) or
+        (is_odd(y) and x == board_width)
+end
+
+function row_at_beginning_or_end(real, expected)
+    return real == expected or real == board_height-expected+1
+end

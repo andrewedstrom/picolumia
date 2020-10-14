@@ -142,3 +142,28 @@ function draw_combo_text()
         yield()
     end
 end
+
+function get_screen_position_for_block(y,x)
+    local x_loc=x*piece_width + board_left
+    if is_odd(y) then
+        x_loc += piece_width/2
+    end
+    local y_loc=bottom-y*piece_height
+    return y_loc, x_loc
+end
+
+-- return time elapsed in format mm:ss
+function display_time()
+    local minutes = flr(seconds_elapsed / 60)
+    local seconds_remainder = seconds_elapsed % 60
+    local display_minutes = tostr(minutes)
+    if #display_minutes < 2 then
+        display_minutes = "0" .. display_minutes
+    end
+    local display_seconds = tostr(seconds_remainder)
+    if #display_seconds < 2 then
+        display_seconds = "0" .. display_seconds
+    end
+
+    return display_minutes .. ":" .. display_seconds
+end

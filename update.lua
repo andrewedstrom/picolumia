@@ -23,7 +23,6 @@ function update_game()
     end
 end
 
-
 function update_timers()
     speed_timer += 1
     seconds_timer += 1
@@ -41,5 +40,35 @@ function update_menu()
     elseif btn(4) or btn(5) then
         music(7)
         loading=true
+    end
+end
+
+function tick()
+    move_down()
+end
+
+function handle_input()
+    local just_moved=false
+    if btnp(0) then
+        just_moved=move_left()
+        x_shift=shimmy_coefficient
+    elseif btnp(1) then
+        just_moved=move_right()
+        x_shift=-shimmy_coefficient
+    elseif btn(3) then
+        hard_dropping=true
+        move_down()
+        y_shift-=shimmy_coefficient
+    end
+    if just_moved then
+        move_sound()
+    end
+
+    if btnp(4) then
+        rotate_counter_clockwise()
+        move_sound()
+    elseif btnp(5) then
+        rotate_clockwise()
+        move_sound()
     end
 end
