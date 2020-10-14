@@ -120,89 +120,6 @@ function handle_input()
     end
 end
 
-function _draw()
-    cls()
-    camera()
-
-    if game_state == "menu" then
-        draw_menu()
-    else
-        draw_hud()
-        if drawing_combo_text and costatus(drawing_combo_text) != dead then
-            coresume(drawing_combo_text)
-        end
-
-        doshake()
-        draw_board()
-    end
-
-    local board_center = board_left+40
-    if game_state == "gameover" then
-        print_in_box("game over",board_center, 44)
-        print_in_box("press \x97 to try again ",board_center, 99)
-    elseif game_state == "won" then
-        print_in_box("you win!!!",board_center, 44)
-        print_in_box("press \x97 to play again ",board_center, 99)
-    end
-end
-
-function draw_menu()
-    -- halo
-    pal(7,1)
-    sspr(1,8,121,25,4,45)
-    sspr(1,8,121,25,5,44)
-    sspr(1,8,121,25,6,45)
-    sspr(1,8,121,25,5,46)
-    pal()
-
-    -- real title
-    sspr(1,8,121,25,5,45)
-
-    centered_print("press \x97 to begin", 64, 103,7,1)
-
-    if loading then
-        fadepal(current_fade_perc)
-        current_fade_perc+=fade_speed
-    end
-end
-
--- The board is organized with 1,1 as the bottom left corner
--- every other row is drawn shifted right by a half position
--- the diamond shape is made by setting the out-of-bounds spaces to "wall"
-function draw_board()
-    local shadow
-    if player then
-        shadow = player_quad_shadow()
-    end
-
-    for_all_tiles(function(y,x)
-        local y_loc, x_loc = get_screen_position_for_block(y,x)
-        if board[y][x] != wall then
-            local sprite = board[y][x]
-
-            if sprite == empty and display_shadow and shadow and shadow:is_in_shadow(y,x) and not currently_clearing_blocks() then
-                -- switch block colors to block shadow colors
-                pal()
-                pal(12, 3)
-                pal(8, 2)
-                pal(7, 6)
-                pal(10, 9)
-                sprite = shadow:get_corresponding_sprite(y,x)
-            end
-
-
-            sspr(sprite,0,sprite_size,sprite_size,x_loc,y_loc)
-            pal()
-            setup_palette()
-        end
-    end)
-
-    if display_shadow and shadow then
-        shadow:draw_slide_indicator_arrow()
-    end
-    draw_board_outline()
-end
-
 function get_screen_position_for_block(y,x)
     local x_loc=x*piece_width + board_left
     if is_odd(y) then
@@ -210,52 +127,6 @@ function get_screen_position_for_block(y,x)
     end
     local y_loc=bottom-y*piece_height
     return y_loc, x_loc
-end
-
-function draw_board_outline()
-    -- draw outline of board
-    color(board_outline_color)
-    local center_point_x=board_left+38
-    local bottom_corner_y=bottom-28
-    local upper_corner_y=bottom-79
-    local bottom_point_y=bottom+5
-
-    -- left side
-    local left_side_line_x=board_left+5
-    line(center_point_x, bottom_point_y, left_side_line_x, bottom_corner_y)
-    line(left_side_line_x, upper_corner_y)
-    line(center_point_x, bottom-board_height*piece_height-4)
-
-    -- right side
-    local right_side_line_x=board_left+board_width*piece_width+8
-    line(center_point_x+1, bottom-board_height*piece_height-4, right_side_line_x, upper_corner_y)
-    line(right_side_line_x, bottom_corner_y)
-    line(center_point_x+1, bottom_point_y)
-end
-
-function draw_hud()
-    local right_side_x=board_left+84
-    local y_loc=8
-
-    color(7)
-    print("time",right_side_x, y_loc)
-    print(display_time(), right_side_x, y_loc+8)
-
-    print("level", right_side_x, y_loc+24)
-    print(level.."/15", right_side_x, y_loc+32)
-
-    print("cleared",right_side_x,y_loc+48)
-    print(cleared, right_side_x,y_loc+56)
-
-    print("score", right_side_x, y_loc+72)
-    print(score, right_side_x, y_loc+80)
-
-    local next_quad_y = y_loc+96
-    local next_quad_x = right_side_x +piece_width/2
-    sspr(next_quad.p3,0,sprite_size,sprite_size,next_quad_x,next_quad_y)
-    sspr(next_quad.p2,0,sprite_size,sprite_size,next_quad_x+piece_width/2,next_quad_y+piece_height)
-    sspr(next_quad.p1,0,sprite_size,sprite_size,next_quad_x-piece_width/2,next_quad_y+piece_height)
-    sspr(next_quad.p0,0,sprite_size,sprite_size,next_quad_x,next_quad_y+piece_height*2)
 end
 
 -- return time elapsed in format mm:ss
@@ -276,153 +147,6 @@ end
 
 function tick()
     move_down()
-end
-
--- Moving blocks
-function rotate_clockwise()
-    local p0 = player:player0()
-    local p1 = player:player1()
-    local p2 = player:player2()
-    local p3 = player:player3()
-
-    local tmp = board[p0.y][p0.x]
-    board[p0.y][p0.x] = board[p2.y][p2.x]
-    board[p2.y][p2.x] = board[p3.y][p3.x]
-    board[p3.y][p3.x] = board[p1.y][p1.x]
-    board[p1.y][p1.x] = tmp
-end
-
-function rotate_counter_clockwise()
-    local p0 = player:player0()
-    local p1 = player:player1()
-    local p2 = player:player2()
-    local p3 = player:player3()
-
-    local tmp = board[p0.y][p0.x]
-    board[p0.y][p0.x] = board[p1.y][p1.x]
-    board[p1.y][p1.x] = board[p3.y][p3.x]
-    board[p3.y][p3.x] = board[p2.y][p2.x]
-    board[p2.y][p2.x] = tmp
-end
-
-function move_down(next_y,next_x)
-    local p0 = player:player0()
-    local p1 = player:player1()
-    local p2 = player:player2()
-    local p3 = player:player3()
-
-    local next_y=player.y-2
-    local next_x=player.x
-
-    if next_y > 0 and board[next_y][next_x] == empty then
-        move_piece(p0.y,p0.x,next_y,next_x)
-        move_piece(p1.y,p1.x,next_y+1,p1.x)
-        move_piece(p2.y,p2.x,next_y+1,p2.x)
-        move_piece(p3.y,p3.x,next_y+2,next_x)
-
-        player.x = next_x
-        player.y = next_y
-    elseif next_y < 0 then
-        hit_bottom()
-    else
-        local next_action = hit_bottom
-        if can_move_left(p0,p1) and can_move_right(p0,p2) then
-            if last_direction_moved == "right" then
-                next_action = move_right
-            else
-                next_action = move_left
-            end
-        elseif can_move_left(p0,p1) then
-            next_action = move_left
-        elseif can_move_right(p0,p2) then
-            next_action = move_right
-        end
-        next_action()
-    end
-end
-
-function move_left()
-    local p0 = player:player0()
-    local p1 = player:player1()
-    local p2 = player:player2()
-    local p3 = player:player3()
-
-    local next_y=p0.y-1
-    local next_x=x_for_next_row(p0.y, p0.x)
-    local one_row_up_x = x_for_next_row(p0.y+1,next_x)
-
-    if can_move_left(p0,p1) then
-        move_piece(p0.y,p0.x,next_y,next_x)
-        move_piece(p1.y,p1.x,next_y+1,one_row_up_x)
-        move_piece(p2.y,p2.x,next_y+1,one_row_up_x+1)
-        move_piece(p3.y,p3.x,next_y+2,next_x)
-
-        player.x = next_x
-        player.y = next_y
-        last_direction_moved = "left"
-        return true
-    elseif not can_move_right(p0,p2) then
-        hit_bottom()
-        return false
-    end
-end
-
-function can_move_left(p0, p1)
-    return p0.y-1 > 0 and block_can_fall_left(p0.y,p0.x) and block_can_fall_left(p1.y,p1.x)
-end
-
-function block_can_fall_left(old_y,old_x)
-    local next_x = x_for_next_row(old_y, old_x)
-    local next_y = old_y-1
-    if next_y < 1 or next_x < 1 then
-        return false
-    end
-
-    return board[next_y][next_x] == empty
-end
-
-function move_right() --todo combine into one method with move_left
-    local p0 = player:player0()
-    local p1 = player:player1()
-    local p2 = player:player2()
-    local p3 = player:player3()
-
-    local next_y=p0.y-1
-    local next_x=x_for_next_row(p0.y, p0.x)+1
-    local one_row_up_x = x_for_next_row(p0.y+1,next_x)
-
-    if can_move_right(p0,p2) then
-        move_piece(p0.y,p0.x,next_y,next_x)
-        move_piece(p1.y,p1.x,next_y+1,one_row_up_x)
-        move_piece(p2.y,p2.x,next_y+1,one_row_up_x+1)
-        move_piece(p3.y,p3.x,next_y+2,next_x)
-
-        player.x = next_x
-        player.y = next_y
-        last_direction_moved = "right"
-        return true
-    elseif not can_move_left(p0, p1) then
-        hit_bottom()
-        return false
-    end
-end
-
-function can_move_right(p0,p2)
-    return p0.y-1 > 0 and block_can_fall_right(p0.y,p0.x) and block_can_fall_right(p2.y,p2.x)
-end
-
-function block_can_fall_right(old_y,old_x)
-    local next_x = x_for_next_row(old_y, old_x)+1
-    local next_y = old_y-1
-    if next_y < 1 or next_x > board_width then
-        return false
-    end
-    return board[next_y][next_x] == empty
-end
-
-function move_piece(old_y,old_x,new_y,new_x)
-    board[new_y][new_x] = board[old_y][old_x]
-    board[old_y][old_x] = empty
 end
 
 function move_sound()
@@ -502,21 +226,6 @@ function find_blocks_to_delete()
     return blocks_to_delete
 end
 
-function draw_combo_text()
-    local x_loc=board_left-5
-    local y_loc=8
-    local message = combo_size.."x combo!"
-
-    local i
-    for i=1,20 do
-        if i % 5 == 0 then
-            y_loc -= 1
-        end
-        print(message,x_loc,y_loc,11)
-        yield()
-    end
-end
-
 function hit_bottom()
     hard_dropping=false
     combo_size = 0
@@ -578,21 +287,6 @@ function hit_bottom()
     end)
 end
 
-function small_clear_sound()
-    local clear_sounds={0,1,2}
-    music(clear_sounds[flr(rnd(#clear_sounds))+1])
-end
-
-function big_clear_sound()
-    local clear_sounds={3,4,5}
-    music(clear_sounds[flr(rnd(#clear_sounds))+1])
-end
-
-function combo_reward_sound()
-    local combo_sounds={6,7,8,9}
-    music(combo_sounds[flr(rnd(#combo_sounds))+1])
-end
-
 function for_all_tiles(callback)
     for y = 1, board_height do
         for x = 1, board_width do
@@ -601,174 +295,6 @@ function for_all_tiles(callback)
             end
         end
     end
-end
-
--- player is represented as the bottom of the falling quad
---     player3
--- player1  player2
---     player0
-function new_player_quad()
-    player={
-        y=board_height-2,
-        x=4,
-        player0=function(self)
-            return {
-                x=self.x,
-                y=self.y
-            }
-        end,
-        player1=function(self) --todo get all of these back in one method call
-            return {
-                x=x_for_next_row(self.y,self.x),
-                y=self.y+1
-            }
-        end,
-        player2=function(self)
-            return {
-                x=x_for_next_row(self.y,self.x)+1,
-                y=self.y+1
-            }
-        end,
-        player3=function(self)
-            return {
-                x=self.x,
-                y=self.y+2
-            }
-        end,
-        is_player_piece=function(self, y, x)
-            local p3 = self:player3()
-            local p2 = self:player2()
-            local p1 = self:player1()
-            local p0 = self:player0()
-
-            return (x == p0.x or x == p1.x or x == p2.x or x == p3.x) and
-                (y == p0.y or y == p1.y or y == p2.y or y == p3.y)
-        end
-    }
-    -- todo add function to player to multi return all current pieces
-    local p3 = player:player3()
-    local p2 = player:player2()
-    local p1 = player:player1()
-    local p0 = player:player0()
-
-    if board[p3.y][p3.x] != empty or board[p2.y][p2.x] != empty or board[p1.y][p1.x] != empty or board[p0.y][p0.x] != empty then
-        sfx(24)
-        game_state = "gameover"
-    end
-    board[p3.y][p3.x] = next_quad.p3
-    board[p2.y][p2.x] = next_quad.p2
-    board[p1.y][p1.x] = next_quad.p1
-    board[p0.y][p0.x] = next_quad.p0
-
-    make_next_quad()
-end
-
-function player_quad_shadow()
-    local s0 = player:player0()
-    local s1 = player:player1()
-    local s2 = player:player2()
-    local s3 = player:player3()
-
-    local next_y=s0.y-2
-    local next_x=s0.x
-
-    while next_y > 0 and board[next_y][next_x] == empty do
-        s0={y=next_y, x=next_x}
-        s1.y=next_y+1
-        s2.y=next_y+1
-        s3={y=next_y+2, x=next_x}
-
-        next_y=s0.y-2
-        next_x=s0.x
-    end
-
-    return {
-        s0=s0,
-        s1=s1,
-        s2=s2,
-        s3=s3,
-        is_in_shadow=function(self,y,x)
-            s0 = self.s0
-            s1 = self.s1
-            s2 = self.s2
-            s3 = self.s3
-            return (y == s0.y and x == s0.x) or (y == s1.y and x == s1.x) or (y == s2.y and x == s2.x) or (y == s3.y and x == s3.x)
-        end,
-        get_corresponding_sprite=function(self,y,x)
-            local s0 = self.s0
-            local s1 = self.s1
-            local s2 = self.s2
-            local s3 = self.s3
-            local p0 = player:player0()
-            local p1 = player:player1()
-            local p2 = player:player2()
-            local p3 = player:player3()
-
-            if y == s0.y and x == s0.x then
-                return board[p0.y][p0.x]
-            elseif y == s1.y and x == s1.x then
-                return board[p1.y][p1.x]
-            elseif y == s2.y and x == s2.x then
-                return board[p2.y][p2.x]
-            end
-            return board[p3.y][p3.x]
-        end,
-        draw_slide_indicator_arrow=function(self)
-            if currently_clearing_blocks() then
-                return
-            end
-
-            local s0 = self.s0
-            local s1 = self.s1
-            local s2 = self.s2
-
-            local next_x=x_for_next_row(s0.y, s0.x)
-            local next_y=s0.y-1
-            local arrow_sprite=6
-
-            local right = can_move_right(s0, s2)
-            local left = can_move_left(s0, s1)
-
-            -- todo this logic is duplicated somewhere else, could dedupe to save tokens
-            if left and right then
-                if last_direction_moved == "right" then
-                    -- if they're moving right, they would slide right
-                    left=false
-                else
-                    -- and vice versa
-                    right=false
-                end
-            end
-
-            if right then
-                -- get screen position to draw arrow
-                local y_pos,x_pos=get_screen_position_for_block(next_y,next_x+1)
-                spr(arrow_sprite,x_pos+2,y_pos-2)
-            end
-
-            if left then
-                -- get screen position to draw arrow
-                local y_pos,x_pos=get_screen_position_for_block(next_y,next_x)
-                spr(arrow_sprite,x_pos-3,y_pos-2,1,1,true,false)
-            end
-        end
-    }
-end
-
-function make_next_quad()
-    local p0=random_block()
-    local p1=random_block()
-    local p2=random_block()
-    local p3=random_block()
-    while p0 == p1 and p1 == p2 and p2 == p3 do
-        p3=random_block()
-    end
-    next_quad={
-        p0=p0,
-        p1=p1,
-        p2=p2,
-        p3=p3
-    }
 end
 
 function random_block()
@@ -822,13 +348,6 @@ function row_at_beginning_or_end(real, expected)
     return real == expected or real == board_height-expected+1
 end
 
-function x_for_next_row(current_y, current_x)
-    if is_odd(current_y) then
-        return current_x
-    end
-    return current_x-1
-end
-
 -- configuration options
 function turn_on_shadow()
     display_shadow=true
@@ -840,9 +359,14 @@ function turn_off_shadow()
     menuitem(1, "show shadow", turn_on_shadow)
 end
 
+
+#include audio.lua
+#include movement.lua
 #include fancy-printing.lua
+#include player-quad.lua
 #include update.lua
 #include juice.lua
+#include draw.lua
 
 __gfx__
 00000000007700000088000000aa000000cc00000011000000000000000000000000000000000000000000000000000000000000000000000000000000000000
