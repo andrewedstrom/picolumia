@@ -84,11 +84,29 @@ function particles_for_block_clear(y, x, block_col)
     y_loc, x_loc = get_screen_position_for_block(y,x)
     local i
     local number_of_particles = 10 + 3 * level
+
+
     for i = 1, number_of_particles do
+        -- determine particle color
+
+        local col
+        if i % 7 != 0 or block_col == white_block then
+            -- most particles are white
+            col = 7
+        elseif block_col == blue_block then
+            col = 12
+        elseif block_col == red_block then
+            col = 8
+        elseif block_col == yellow_block then
+            col = 10
+        end
+
+        -- create particle
         add(particles, {
             x=x_loc,
             y=y_loc,
             r=rnd(2),
+            color=col,
             mult=rnd(1)/2,
             ttl=30+rnd(40),
             starting_theta=rnd(1),
@@ -100,14 +118,13 @@ function particles_for_block_clear(y, x, block_col)
                 theta=self.r*self.mult/100+self.starting_theta
                 local spiral_x=self.r*cos(theta)
                 local spiral_y=self.r*sin(theta)
-                local col = 7
                 if self.ttl < 15 then
-                    col = 6
+                    self.color = 6
                 end
                 if self.ttl < 4 then
-                    col = 1
+                    self.color = 1
                 end
-                pset(self.x+spiral_x, self.y+spiral_y, col)
+                pset(self.x+spiral_x, self.y+spiral_y, self.color)
             end,
             is_expired=function(self)
                 return self.ttl < 0
