@@ -77,7 +77,7 @@ function fadepal(_perc)
 end
 
 
-function spawn_particles(y, x)
+function particles_for_block_clear(y, x, block_col)
     -- at first just spawn one
     local x_loc
     local y_loc
@@ -90,7 +90,7 @@ function spawn_particles(y, x)
             y=y_loc,
             r=rnd(2),
             mult=rnd(1)/2,
-            ttl=40+rnd(30),
+            ttl=30+rnd(40),
             starting_theta=rnd(1),
             update=function(self)
                 self.r = self.r + 1.5
@@ -101,10 +101,10 @@ function spawn_particles(y, x)
                 local spiral_x=self.r*cos(theta)
                 local spiral_y=self.r*sin(theta)
                 local col = 7
-                if self.ttl < 10 then
+                if self.ttl < 15 then
                     col = 6
                 end
-                if self.ttl < 3 then
+                if self.ttl < 4 then
                     col = 1
                 end
                 pset(self.x+spiral_x, self.y+spiral_y, col)
