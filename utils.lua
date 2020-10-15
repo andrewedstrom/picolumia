@@ -22,3 +22,12 @@ end
 function is_odd(num)
     return num % 2 != 0
 end
+
+function get_screen_position_for_block(y,x)
+    local x_loc=x*piece_width + board_left
+    if is_odd(y) then
+        x_loc += piece_width/2
+    end
+    local y_loc=bottom-y*piece_height
+    return y_loc, x_loc
+end

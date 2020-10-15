@@ -95,6 +95,7 @@ function hit_bottom()
                     cleared_this_iteration+=1
                 end
                 board[b.y][b.x] = empty
+                spawn_particles(b.y,b.x)
             end
 
             if cleared_things then

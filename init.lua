@@ -21,4 +21,5 @@ function start_game()
     x_shift = 0
     y_shift = 0
     hard_dropping = false
+    particles={}
 end

@@ -15,6 +15,11 @@ function _draw()
         draw_board()
     end
 
+    local p
+    for p in all(particles) do
+        p:draw()
+    end
+
     local board_center = board_left+40
     if game_state == "gameover" then
         print_in_box("game over",board_center, 44)
@@ -141,15 +146,6 @@ function draw_combo_text()
         print(message,x_loc,y_loc,11)
         yield()
     end
-end
-
-function get_screen_position_for_block(y,x)
-    local x_loc=x*piece_width + board_left
-    if is_odd(y) then
-        x_loc += piece_width/2
-    end
-    local y_loc=bottom-y*piece_height
-    return y_loc, x_loc
 end
 
 -- return time elapsed in format mm:ss

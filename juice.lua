@@ -75,3 +75,42 @@ function fadepal(_perc)
         pal(j, col, 1)
     end
 end
+
+
+function spawn_particles(y, x)
+    -- at first just spawn one
+    local x_loc
+    local y_loc
+    y_loc, x_loc = get_screen_position_for_block(y,x)
+    local i
+    for i = 1, 30 do
+        add(particles, {
+            x=x_loc,
+            y=y_loc,
+            r=rnd(2),
+            mult=rnd(1)/3,
+            ttl=40+rnd(30),
+            starting_theta=rnd(1),
+            update=function(self)
+                self.r = self.r + 1.5
+                self.ttl = self.ttl - 1
+            end,
+            draw=function(self)
+                theta=self.r*self.mult/100+self.starting_theta
+                local spiral_x=self.r*cos(theta)
+                local spiral_y=self.r*sin(theta)
+                local col = 7
+                if self.ttl < 10 then
+                    col = 6
+                end
+                if self.ttl < 3 then
+                    col = 1
+                end
+                pset(self.x+spiral_x, self.y+spiral_y, col)
+            end,
+            is_expired=function(self)
+                return self.ttl < 0
+            end
+        })
+    end
+end

@@ -7,6 +7,7 @@ __lua__
 local board
 local player
 local next_quad
+local particles
 local speed_timer
 local speed
 local last_direction_moved -- "right" or "left"
@@ -136,4 +137,3 @@ __music__
 04 0e111244
 04 10110d44
 04 0f161744
-

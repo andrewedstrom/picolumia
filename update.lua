@@ -21,6 +21,14 @@ function update_game()
         end
         handle_input()
     end
+
+    local p
+    for p in all(particles) do
+        p:update()
+        if p:is_expired() then
+            del(particles, p)
+        end
+    end
 end
 
 function update_timers()
