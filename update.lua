@@ -1,4 +1,11 @@
 function _update()
+    local p
+    for p in all(particles) do
+        p:update()
+        if p:is_expired() then
+            del(particles, p)
+        end
+    end
     if game_state == "menu" or game_state == "gameover" or game_state == "won" then
         update_menu()
     elseif game_state == "playing" then
@@ -20,14 +27,6 @@ function update_game()
             speed_timer = 0
         end
         handle_input()
-    end
-
-    local p
-    for p in all(particles) do
-        p:update()
-        if p:is_expired() then
-            del(particles, p)
-        end
     end
 end
 
