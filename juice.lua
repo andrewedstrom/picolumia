@@ -83,13 +83,13 @@ function spawn_particles(y, x)
     local y_loc
     y_loc, x_loc = get_screen_position_for_block(y,x)
     local i
-    local number_of_particles = 25 + 2 * level
+    local number_of_particles = 10 + 3 * level
     for i = 1, number_of_particles do
         add(particles, {
             x=x_loc,
             y=y_loc,
             r=rnd(2),
-            mult=rnd(1)/3,
+            mult=rnd(1)/2,
             ttl=40+rnd(30),
             starting_theta=rnd(1),
             update=function(self)
