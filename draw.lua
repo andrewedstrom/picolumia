@@ -45,7 +45,7 @@ function draw_menu()
     centered_print("press \x97 to begin", 64, 103,7,1)
 
     if loading then
-        fadepal(current_fade_perc)
+        fadepal(current_fade_perc, 1)
         current_fade_perc+=fade_speed
     end
 end

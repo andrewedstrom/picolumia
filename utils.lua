@@ -1,4 +1,5 @@
 function setup_palette()
+    pal()
     _pal={0,129,136,140,1,5,6,7,8,135,10,131,12,13,133,134}
     for i,c in pairs(_pal) do
         pal(i-1,c,1)

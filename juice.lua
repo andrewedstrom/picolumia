@@ -15,7 +15,9 @@ function doshake()
     end
 end
 
-function fadepal(_perc)
+-- whole_screen = 1 means swap palette for whole existing screen
+-- whole_screen = 0 means just change the draw palette
+function fadepal(_perc, whole_screen)
     -- this function sets the
     -- color palette so everything
     -- you draw afterwards will
@@ -34,7 +36,6 @@ function fadepal(_perc)
     -- out of bounds
     local p = flr(mid(0, _perc, 1) * 100)
 
-    -- these are helper variables
     local kmax, col, dpal, j, k
 
     -- this is a table to do the
@@ -49,9 +50,7 @@ function fadepal(_perc)
     -- etc...
     dpal = {0, 1, 1, 2, 1, 13, 6, 4, 4, 9, 3, 13, 1, 13, 14}
 
-    -- now we go through all colors
     for j = 1, 15 do
-        -- grab the current color
         col = j
 
         -- now calculate how many
@@ -72,7 +71,7 @@ function fadepal(_perc)
 
         -- finally, we change the
         -- palette
-        pal(j, col, 1)
+        pal(j, col, whole_screen)
     end
 end
 
@@ -88,8 +87,7 @@ function particles_for_block_clear(y, x, block_col)
 
     for i = 1, number_of_particles do
         -- determine particle color
-
-        local col
+        local col = 7
         if i % 7 != 0 or block_col == white_block then
             -- most particles are white
             col = 7
@@ -109,25 +107,38 @@ function particles_for_block_clear(y, x, block_col)
             color=col,
             mult=rnd(1)/2,
             ttl=30+rnd(40),
+            fade_perc=0,
             starting_theta=rnd(1),
             update=function(self)
                 self.r = self.r + 1.5
                 self.ttl = self.ttl - 1
+                if self.ttl < 20 then
+                    self.fade_perc = self.fade_perc + fade_speed
+                end
             end,
             draw=function(self)
-                theta=self.r*self.mult/100+self.starting_theta
-                local spiral_x=self.r*cos(theta)
-                local spiral_y=self.r*sin(theta)
-                if self.ttl < 15 then
-                    self.color = 6
+                theta = self.r * self.mult / 100 + self.starting_theta
+                local spiral_x = self.r * cos(theta)
+                local spiral_y = self.r * sin(theta)
+                local x_coord = self.x + spiral_x
+                local y_coord = self.y + spiral_y
+
+                if x_coord > 128 or x_coord < 0 or y_coord > 128 or y_coord < 0 then
+                    self.ttl = -1
                 end
-                if self.ttl < 4 then
-                    self.color = 1
+
+                if self.fade_perc > 0 then
+                    fadepal(self.fade_perc, 0)
                 end
-                pset(self.x+spiral_x, self.y+spiral_y, self.color)
+
+                pset(x_coord, y_coord, self.color)
+
+                if self.fade_perc > 0 then
+                    setup_palette()
+                end
             end,
             is_expired=function(self)
-                return self.ttl < 0
+                return self.ttl < 0 or self.fade_perc > 1.1
             end
         })
     end
