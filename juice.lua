@@ -105,12 +105,12 @@ function particles_for_block_clear(y, x, block_col)
             y=y_loc,
             r=rnd(2),
             color=col,
-            mult=rnd(1)/2,
+            mult=rnd(1)/3,
             ttl=30+rnd(40),
             fade_perc=0,
             starting_theta=rnd(1),
             update=function(self)
-                self.r = self.r + 1.5
+                self.r = self.r + 1.8
                 self.ttl = self.ttl - 1
                 if self.ttl < 20 then
                     self.fade_perc = self.fade_perc + fade_speed
