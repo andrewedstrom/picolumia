@@ -1,4 +1,7 @@
 # picolumia
+
+![game cart](/picolumia.p8.png)
+
 Mixolumia demake for the pico8
 
 # TODO
