@@ -7,13 +7,13 @@ function setup_palette()
 end
 
 function currently_clearing_blocks()
-    return blocks_clearing and costatus(blocks_clearing) != 'dead'
+    return blocks_clearing and costatus(blocks_clearing) ~= 'dead'
 end
 
 function for_all_tiles(callback)
     for y = 1, board_height do
         for x = 1, board_width do
-            if board[y][x] != wall then
+            if board[y][x] ~= wall then
                 callback(y, x)
             end
         end
@@ -21,7 +21,7 @@ function for_all_tiles(callback)
 end
 
 function is_odd(num)
-    return num % 2 != 0
+    return num % 2 ~= 0
 end
 
 function get_screen_position_for_block(y,x)

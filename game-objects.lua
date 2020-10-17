@@ -47,7 +47,7 @@ function new_player_quad()
     local p1 = player:player1()
     local p0 = player:player0()
 
-    if board[p3.y][p3.x] != empty or board[p2.y][p2.x] != empty or board[p1.y][p1.x] != empty or board[p0.y][p0.x] != empty then
+    if board[p3.y][p3.x] ~= empty or board[p2.y][p2.x] ~= empty or board[p1.y][p1.x] ~= empty or board[p0.y][p0.x] ~= empty or (not block_can_fall_left(p1.y, p1.x) and not block_can_fall_right(p2.y, p2.x)) then
         sfx(24)
         game_state = "gameover"
     end
@@ -201,7 +201,7 @@ end
 
 function wall_here(y,x)
     -- TODO should still be cleaned up more
-    return (row_at_beginning_or_end(y, 1) and x != 4) or
+    return (row_at_beginning_or_end(y, 1) and x ~= 4) or
         (row_at_beginning_or_end(y, 2) and (x < 4 or 5 < x)) or
         (row_at_beginning_or_end(y, 3) and (x < 3 or 5 < x)) or
         (row_at_beginning_or_end(y, 4) and (x < 3 or 6 < x)) or

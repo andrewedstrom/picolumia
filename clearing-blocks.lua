@@ -16,7 +16,7 @@ function let_pieces_settle()
         falling=false
         -- todo make this happen over multiple frames
         for_all_tiles(function(y, x)
-            if board[y][x] != empty then
+            if board[y][x] ~= empty then
                 if block_can_fall_left(y,x) then
                     move_piece(y, x, y-1, x_for_next_row(y,x))
                     falling=true
@@ -26,15 +26,17 @@ function let_pieces_settle()
         if falling then
             yield_n_times(2)
         end
+        local falling_right = false
         for_all_tiles(function(y, x)
-            if board[y][x] != empty then
+            if board[y][x] ~= empty then
                 if block_can_fall_right(y,x) then
                     move_piece(y, x, y-1, x_for_next_row(y,x)+1)
                     falling=true
+                    falling_right=true
                 end
             end
         end)
-        if falling then
+        if falling_right then
             yield_n_times(2)
         end
     end
@@ -44,7 +46,7 @@ function find_blocks_to_delete()
     local blocks_to_delete = {} -- y,x pairs
     for_all_tiles(function(y,x)
         local current_piece = board[y][x]
-        if current_piece != empty then
+        if current_piece ~= empty then
             local one_row_up_x = x_for_next_row(y, x)
 
             -- square!
@@ -72,9 +74,9 @@ function find_blocks_to_delete()
 end
 
 function hit_bottom()
-    hard_dropping=false
+    hard_dropping = false
     combo_size = 0
-    y_shift-=shimmy_coefficient/2
+    y_shift -= shimmy_coefficient/2
     sfx(11)
 
     blocks_clearing=cocreate(function()
@@ -82,17 +84,17 @@ function hit_bottom()
         let_pieces_settle()
 
         yield_n_times(3)
-        local cleared_things=true -- todo this is a lie at this moment
-        local scored_this_turn=0
+        local cleared_things = true -- todo this is a lie at this moment
+        local scored_this_turn = 0
         while cleared_things do
-            cleared_things=false
+            cleared_things = false
 
             local blocks_to_delete = find_blocks_to_delete()
             local cleared_this_iteration = 0 --todo this makes cleared_things pointless
             for b in all(blocks_to_delete) do
                 cleared_things = true
-                if board[b.y][b.x] != empty then
-                    cleared_this_iteration+=1
+                if board[b.y][b.x] ~= empty then
+                    cleared_this_iteration += 1
                     particles_for_block_clear(b.y, b.x, board[b.y][b.x])
                 end
                 board[b.y][b.x] = empty
@@ -100,9 +102,9 @@ function hit_bottom()
 
             if cleared_things then
                 combo_size += 1
-                local combo_multiplier = mid(1,combo_size,4)
+                local combo_multiplier = mid(1, combo_size, 4)
                 cleared += cleared_this_iteration
-                scored_this_turn += combo_size*calculate_points_scored(cleared_this_iteration, level)
+                scored_this_turn += combo_size * calculate_points_scored(cleared_this_iteration, level)
                 if #blocks_to_delete < 4 then
                     small_clear_sound()
                 else
@@ -117,7 +119,7 @@ function hit_bottom()
         end
 
         if combo_size > 1 then
-            drawing_combo_text=cocreate(draw_combo_text)
+            drawing_combo_text = cocreate(draw_combo_text)
             yield_n_times(2)
             combo_reward_sound()
         end

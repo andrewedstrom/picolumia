@@ -88,7 +88,7 @@ function particles_for_block_clear(y, x, block_col)
     for i = 1, number_of_particles do
         -- determine particle color
         local col = 7
-        if i % 7 != 0 or block_col == white_block then
+        if i % 7 ~= 0 or block_col == white_block then
             -- most particles are white
             col = 7
         elseif block_col == blue_block then

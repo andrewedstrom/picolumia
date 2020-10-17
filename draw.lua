@@ -7,7 +7,7 @@ function _draw()
         draw_menu()
     else
         draw_hud()
-        if drawing_combo_text and costatus(drawing_combo_text) != dead then
+        if drawing_combo_text and costatus(drawing_combo_text) ~= dead then
             coresume(drawing_combo_text)
         end
 
@@ -23,10 +23,10 @@ function _draw()
     local board_center = board_left+40
     if game_state == "gameover" then
         print_in_box("game over",board_center, 44)
-        print_in_box("press \x97 to try again ",board_center, 99)
+        print_in_box("\x8e + \x97 to try again  ",board_center, 99)
     elseif game_state == "won" then
         print_in_box("you win!!!",board_center, 44)
-        print_in_box("press \x97 to play again ",board_center, 99)
+        print_in_box("\x8e + \x97 to play again  ",board_center, 99)
     end
 end
 
@@ -42,7 +42,7 @@ function draw_menu()
     -- real title
     sspr(1,8,121,25,5,45)
 
-    centered_print("press \x97 to begin", 64, 103,7,1)
+    centered_print("press \x8e + \x97 to begin  ", 64, 103,7,1)
 
     if loading then
         fadepal(current_fade_perc, 1)
@@ -61,7 +61,7 @@ function draw_board()
 
     for_all_tiles(function(y,x)
         local y_loc, x_loc = get_screen_position_for_block(y,x)
-        if board[y][x] != wall then
+        if board[y][x] ~= wall then
             local sprite = board[y][x]
 
             if sprite == empty and display_shadow and shadow and shadow:is_in_shadow(y,x) and not currently_clearing_blocks() then

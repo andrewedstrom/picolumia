@@ -46,7 +46,7 @@ function update_menu()
             start_game()
             loading=false
         end
-    elseif btn(4) or btn(5) then
+    elseif btn(4) and btn(5) then
         music(7)
         loading=true
     end
