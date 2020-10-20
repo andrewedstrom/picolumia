@@ -13,8 +13,13 @@ local speed
 local last_direction_moved -- "right" or "left"
 local game_state -- "playing", "gameover", "menu", "won"
 local hard_dropping
-local number_of_sounds=10
+local number_of_sounds = 10
 local combo_size
+
+-- when you first hold down a button, how many frames before it repeats
+-- defaults to 15 on pico8 but we override it a la https://twitter.com/lexaloffle/status/1176688167719587841?s=20
+local btnp_inital_delay = 5
+poke(0x5f5c, btnp_inital_delay)
 
 -- player-chosen settings
 local display_shadow
@@ -48,7 +53,7 @@ local piece_width = 8
 local piece_height = 4
 local sprite_size = 6
 
--- game feel thiccness
+-- game feel thiccness (a.k.a. juice)
 local x_shift
 local y_shift
 local shimmy_coefficient=1.4
@@ -267,4 +272,3 @@ __music__
 04 0e111244
 04 10110d44
 04 0f161744
-

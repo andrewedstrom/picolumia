@@ -64,7 +64,7 @@ function handle_input()
     elseif btnp(1) then
         just_moved=move_right()
         x_shift=-shimmy_coefficient
-    elseif btn(3) then
+    elseif btnp(3) then
         hard_dropping=true
         move_down()
         y_shift-=shimmy_coefficient
