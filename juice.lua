@@ -82,8 +82,7 @@ function particles_for_block_clear(y, x, block_col)
     local y_loc
     y_loc, x_loc = get_screen_position_for_block(y,x)
     local i
-    local number_of_particles = 10 + 3 * level
-
+    local number_of_particles = 10 + 2 * level
 
     for i = 1, number_of_particles do
         -- determine particle color
@@ -105,7 +104,7 @@ function particles_for_block_clear(y, x, block_col)
             y=y_loc,
             r=rnd(2),
             color=col,
-            mult=rnd(1)/3,
+            mult=rnd(1)/300,
             ttl=30+rnd(40),
             fade_perc=0,
             starting_theta=rnd(1),
@@ -117,7 +116,7 @@ function particles_for_block_clear(y, x, block_col)
                 end
             end,
             draw=function(self)
-                theta = self.r * self.mult / 100 + self.starting_theta
+                theta = self.r * self.mult + self.starting_theta
                 local spiral_x = self.r * cos(theta)
                 local spiral_y = self.r * sin(theta)
                 local x_coord = self.x + spiral_x

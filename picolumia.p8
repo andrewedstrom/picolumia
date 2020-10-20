@@ -18,7 +18,7 @@ local combo_size
 
 -- when you first hold down a button, how many frames before it repeats
 -- defaults to 15 on pico8 but we override it a la https://twitter.com/lexaloffle/status/1176688167719587841?s=20
-local btnp_inital_delay = 5
+local btnp_inital_delay = 6
 poke(0x5f5c, btnp_inital_delay)
 
 -- player-chosen settings
