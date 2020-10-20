@@ -77,11 +77,21 @@ function handle_directional_input()
 end
 
 function handle_rotational_input()
-    if btnp(4) then
-        rotate_counter_clockwise()
-        move_sound()
-    elseif btnp(5) then
-        rotate_clockwise()
-        move_sound()
+    if not swap_rotation_buttons then
+        if btnp(4) then
+            rotate_counter_clockwise()
+            move_sound()
+        elseif btnp(5) then
+            rotate_clockwise()
+            move_sound()
+        end
+    else
+        if btnp(5) then
+            rotate_counter_clockwise()
+            move_sound()
+        elseif btnp(4) then
+            rotate_clockwise()
+            move_sound()
+        end
     end
 end

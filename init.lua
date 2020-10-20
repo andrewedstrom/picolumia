@@ -1,7 +1,10 @@
 function _init()
     game_state = "menu"
-    turn_on_shadow()
     particles={}
+
+    -- config
+    turn_on_shadow()
+    standard_rotation_mode()
 end
 
 function start_game()

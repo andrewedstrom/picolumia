@@ -23,6 +23,7 @@ poke(0x5f5c, btnp_inital_delay)
 
 -- player-chosen settings
 local display_shadow
+local swap_rotation_buttons
 
 -- coroutines
 local drawing_combo_text
