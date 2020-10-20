@@ -20,13 +20,15 @@ function update_game()
     if currently_clearing_blocks() then
         coresume(blocks_clearing)
     elseif hard_dropping then
+        handle_rotational_input()
         move_down()
     else
         if speed_timer >= (speed - level) then
             tick()
             speed_timer = 0
         end
-        handle_input()
+        handle_directional_input()
+        handle_rotational_input()
     end
 end
 
@@ -56,7 +58,7 @@ function tick()
     move_down()
 end
 
-function handle_input()
+function handle_directional_input()
     local just_moved=false
     if btnp(0) then
         just_moved=move_left()
@@ -72,7 +74,9 @@ function handle_input()
     if just_moved then
         move_sound()
     end
+end
 
+function handle_rotational_input()
     if btnp(4) then
         rotate_counter_clockwise()
         move_sound()
