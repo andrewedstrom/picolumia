@@ -28,12 +28,6 @@ function fadepal(_perc, whole_screen)
     -- this function has been
     -- adapted from the jelpi.p8
     -- demo
-
-    -- first we take our argument
-    -- and turn it into a
-    -- percentage number (0-100)
-    -- also making sure its not
-    -- out of bounds
     local p = flr(mid(0, _perc, 1) * 100)
 
     local kmax, col, dpal, j, k
@@ -50,7 +44,7 @@ function fadepal(_perc, whole_screen)
     -- etc...
     dpal = {0, 1, 1, 2, 1, 13, 6, 4, 4, 9, 3, 13, 1, 13, 14}
 
-    for j = 1, 15 do
+    for j = 1, 11 do -- should go to 15 but we never need to fade colors above 11
         col = j
 
         -- now calculate how many
@@ -82,7 +76,7 @@ function particles_for_block_clear(y, x, block_col)
     local y_loc
     y_loc, x_loc = get_screen_position_for_block(y,x)
     local i
-    local number_of_particles = 10 + 2 * level
+    local number_of_particles = 10 + 2 * min(level, 10)
 
     for i = 1, number_of_particles do
         -- determine particle color
@@ -105,7 +99,7 @@ function particles_for_block_clear(y, x, block_col)
             r=rnd(2),
             color=col,
             mult=rnd(1)/300,
-            ttl=30+rnd(40),
+            ttl=40+rnd(30),
             fade_perc=0,
             starting_theta=rnd(1),
             update=function(self)
@@ -124,16 +118,16 @@ function particles_for_block_clear(y, x, block_col)
 
                 if x_coord > 128 or x_coord < 0 or y_coord > 128 or y_coord < 0 then
                     self.ttl = -1
-                end
+                else
+                    if self.fade_perc > 0 then
+                        fadepal(self.fade_perc, 0)
+                    end
 
-                if self.fade_perc > 0 then
-                    fadepal(self.fade_perc, 0)
-                end
+                    pset(x_coord, y_coord, self.color)
 
-                pset(x_coord, y_coord, self.color)
-
-                if self.fade_perc > 0 then
-                    setup_palette()
+                    if self.fade_perc > 0 then
+                        setup_palette()
+                    end
                 end
             end,
             is_expired=function(self)
