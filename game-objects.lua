@@ -110,7 +110,7 @@ function player_quad_shadow()
             return board[p3.y][p3.x]
         end,
         draw_slide_indicator_arrow=function(self)
-            if currently_clearing_blocks() then
+            if currently_clearing_blocks() or game_state ~= "playing" then
                 return
             end
 
