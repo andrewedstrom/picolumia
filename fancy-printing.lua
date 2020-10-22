@@ -1,3 +1,6 @@
+-->8
+-- fancy printing
+
 function print_in_box(message, x, y)
     local pico8_letter_width = 4
     local message_width_px = #message * pico8_letter_width

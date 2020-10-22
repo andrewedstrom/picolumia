@@ -1,4 +1,6 @@
--- game feel thiccness
+-->8
+-- juice
+
 function doshake()
     local x_pos = flr(x_shift)
     if x_shift < 0 then

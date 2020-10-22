@@ -1,3 +1,5 @@
+-->8
+-- draw functions
 
 function _draw()
     cls()

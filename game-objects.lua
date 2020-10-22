@@ -1,3 +1,5 @@
+-->8
+-- game object factories
 
 -- player is represented as the bottom of the falling quad
 --     player3

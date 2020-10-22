@@ -1,3 +1,6 @@
+-->8
+-- init functions
+
 function _init()
     game_state = "menu"
     particles={}

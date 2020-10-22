@@ -1,3 +1,6 @@
+-->8
+-- clearing blocks
+
 function yield_n_times(n)
     local i
     for i=1,n do

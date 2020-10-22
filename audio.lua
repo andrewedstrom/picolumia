@@ -1,3 +1,5 @@
+-->8
+-- audio
 function small_clear_sound()
     local clear_sounds = {0, 1, 2}
     music(clear_sounds[flr(rnd(#clear_sounds)) + 1])

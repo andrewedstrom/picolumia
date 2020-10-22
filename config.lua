@@ -1,3 +1,4 @@
+-->8
 -- configuration options
 function turn_on_shadow()
     display_shadow = true
