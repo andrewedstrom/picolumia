@@ -163,5 +163,10 @@ function display_time()
         display_seconds = "0" .. display_seconds
     end
 
-    return display_minutes .. ":" .. display_seconds
+    local t = display_minutes .. ":" .. display_seconds
+    if display_milliseconds then
+        t = t .. "." .. 33 * seconds_timer
+    end
+
+    return t
 end

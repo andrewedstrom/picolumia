@@ -8,6 +8,7 @@ function _init()
     -- config
     turn_on_shadow()
     standard_rotation_mode()
+    turn_off_millisecond_display()
 end
 
 function start_game()

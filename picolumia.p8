@@ -21,9 +21,10 @@ local combo_size
 local btnp_inital_delay = 6
 poke(0x5f5c, btnp_inital_delay)
 
--- player-chosen settings
+-- player config
 local display_shadow
 local swap_rotation_buttons
+local display_milliseconds
 
 -- coroutines
 local drawing_combo_text
