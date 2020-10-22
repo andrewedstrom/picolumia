@@ -58,6 +58,8 @@ function new_player_quad()
     board[p1.y][p1.x] = next_quad.p1
     board[p0.y][p0.x] = next_quad.p0
 
+    speed_timer = 0
+
     make_next_quad()
 end
 
