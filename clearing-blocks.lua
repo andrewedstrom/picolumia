@@ -107,7 +107,7 @@ function hit_bottom()
                 combo_size += 1
                 local combo_multiplier = mid(1, combo_size, 4)
                 cleared += cleared_this_iteration
-                scored_this_turn += combo_size * calculate_points_scored(cleared_this_iteration, level)
+                scored_this_turn += combo_multiplier * calculate_points_scored(cleared_this_iteration, level)
                 if #blocks_to_delete < 4 then
                     small_clear_sound()
                 else
